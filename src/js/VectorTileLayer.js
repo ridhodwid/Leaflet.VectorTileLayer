@@ -30,16 +30,17 @@
  */
 
 /*property
-    _tileZoom, abs, addEventParent, addFeatureLayer, addTo, addVectorTile,
-    arrayBuffer, bbox, call, coords, createTile, divideBy, domElement,
-    eachFeatureLayer, extend, feature, filter, forEach, freeze, getBounds,
-    getFeatureId, getFeatureStyle, getPrototypeOf, getTileSize, getTileUrl,
-    getZoom, getZoomScale, global, isArray, join, keys, layerName, length, max,
-    maxDetailZoom, maxZoom, min, minDetailZoom, minZoom, off, ok, on, onAdd,
-    onRemove, properties, removeEventParent, removeFeatureLayer, removeFrom,
-    resetFeatureStyle, round, s, setFeatureStyle, setStyle, split, status,
-    statusText, style, subdomains, template, then, unproject,
-    vectorTileLayerStyles, x, y, z, zoomOffset, zoomReverse
+    _globalTileRange, _tileZoom, abs, addEventParent, addFeatureLayer, addTo,
+    addVectorTile, arrayBuffer, bbox, call, coords, createTile, crs, divideBy,
+    domElement, eachFeatureLayer, extend, feature, filter, forEach, freeze,
+    getBounds, getFeatureId, getFeatureStyle, getPrototypeOf, getTileSize,
+    getTileUrl, getZoom, getZoomScale, global, infinite, isArray, join, keys,
+    layerName, length, max, maxDetailZoom, maxZoom, min, minDetailZoom, minZoom,
+    off, ok, on, onAdd, onRemove, options, properties, removeEventParent,
+    removeFeatureLayer, removeFrom, resetFeatureStyle, round, s,
+    setFeatureStyle, setStyle, split, status, statusText, style, subdomains,
+    template, then, unproject, vectorTileLayerStyles, x, y, z, zoomOffset,
+    zoomReverse
 */
 
 import featureTile from "./FeatureTile.js";
@@ -206,6 +207,9 @@ export default Object.freeze(function vectorTileLayer(url, options) {
             y: coords.y,
             z: getZoomForUrl(coords.z)
         };
+        if (!m_map.options.crs.infinite) {
+            data["-y"] = self._globalTileRange.max.y - coords.y;
+        }
         return Util.template(
             url,
             Util.extend(data, options)

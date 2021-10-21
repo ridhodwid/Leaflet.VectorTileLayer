@@ -21,9 +21,14 @@ across all zoom levels.
 
 Use
 ---
+
 Loads vector tiles from a URL template like
 
     https://{s}.example.com/tiles/{z}/{x}/{y}.pbf
+
+The URL template also supports the undocumented `{-y}` option for
+»[inverted Y][Y]« if the map's [coordinate reference system][CRS] is finite
+(the default).
 
 This pacakge can be used as an ES6 module.
 
@@ -141,6 +146,7 @@ format are supported, but support for other renderers or formats may be
 added through options in the future.
 
 
+[CRS]:  https://leafletjs.com/reference-1.7.1.html#crs
 [GL]:   http://leafletjs.com/reference-1.0.3.html#gridlayer
 [L]:    http://leafletjs.com/
 [LVG]:  https://github.com/Leaflet/Leaflet.VectorGrid
@@ -148,3 +154,4 @@ added through options in the future.
 [PG]:   http://leafletjs.com/reference-1.0.3.html#polygon
 [PL]:   http://leafletjs.com/reference-1.0.3.html#polyline
 [VT]:   https://github.com/mapbox/vector-tile-spec
+[Y]:    https://github.com/Leaflet/Leaflet/issues/4284
