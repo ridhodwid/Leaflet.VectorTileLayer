@@ -68,6 +68,8 @@ highlight certain features, for example.
 For compatibility, support for the `vectorTileLayerStyles` option and
 `set/resetFeatureStyle()` method is also provided.
 
+`VectorTileLayer` also supports ordering the layers based on their names.
+
 Another added feature of `VectorTileLayer` is a `getBounds()` function.
 After the `load` event, it returns the bounds occupied by the features on
 all currently loaded tiles.
@@ -83,6 +85,11 @@ const options = {
         // feature, the layer name and the zoom level. The default is to
         // include all features.
         filter, // default undefined
+
+        // A function that receives a list of vector tile layer names and
+        // returns the names in the order in which they should be drawn.
+        // The default is to draw the layers as they appear in the tile.
+        layerOrder, // default undefined
 
         // Specify zoom range in which tiles are loaded. Tiles will be
         // rendered from the same data for Zoom levels outside the range.

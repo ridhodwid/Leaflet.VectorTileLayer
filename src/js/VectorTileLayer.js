@@ -33,12 +33,12 @@
     _globalTileRange, _tileZoom, abs, addEventParent, addFeatureLayer, addTo,
     addVectorTile, arrayBuffer, bbox, call, coords, createTile, crs, divideBy,
     domElement, eachFeatureLayer, extend, feature, filter, forEach, freeze,
-    getBounds, getFeatureId, getFeatureStyle, getPrototypeOf, getTileSize,
-    getTileUrl, getZoom, getZoomScale, global, infinite, isArray, join, keys,
-    layerName, length, max, maxDetailZoom, maxZoom, min, minDetailZoom, minZoom,
-    off, ok, on, onAdd, onRemove, options, properties, removeEventParent,
-    removeFeatureLayer, removeFrom, resetFeatureStyle, round, s,
-    setFeatureStyle, setStyle, split, status, statusText, style, subdomains,
+    getBounds, getFeatureId, getFeatureStyle, getOrderedLayers, getPrototypeOf,
+    getTileSize, getTileUrl, getZoom, getZoomScale, global, infinite, isArray,
+    join, keys, layerName, layerOrder, length, max, maxDetailZoom, maxZoom, min,
+    minDetailZoom, minZoom, off, ok, on, onAdd, onRemove, options, properties,
+    removeEventParent, removeFeatureLayer, removeFrom, resetFeatureStyle, round,
+    s, setFeatureStyle, setStyle, split, status, statusText, style, subdomains,
     template, then, unproject, vectorTileLayerStyles, x, y, z, zoomOffset,
     zoomReverse
 */
@@ -70,6 +70,7 @@ function tileId(coords) {
 
 const defaultOptions = {
     filter: undefined,
+    layerOrder: undefined,
     minZoom: 0,
     maxZoom: 18,
     maxDetailZoom: undefined,
@@ -271,6 +272,14 @@ export default Object.freeze(function vectorTileLayer(url, options) {
             "function" === typeof style
             ? style(feature, layerName, m_zoom)
             : style
+        );
+    };
+
+    self.getOrderedLayers = function getOrderedLayers(layerNames) {
+        return (
+            undefined !== options.layerOrder
+            ? options.layerOrder(layerNames)
+            : layerNames
         );
     };
 
