@@ -68,7 +68,8 @@ highlight certain features, for example.
 For compatibility, support for the `vectorTileLayerStyles` option and
 `set/resetFeatureStyle()` method is also provided.
 
-`VectorTileLayer` also supports ordering the layers based on their names.
+`VectorTileLayer` also supports ordering the layers based on their names
+using an option like `layerOrder: () => ["a", "b", "c"]`.
 
 Another added feature of `VectorTileLayer` is a `getBounds()` function.
 After the `load` event, it returns the bounds occupied by the features on
