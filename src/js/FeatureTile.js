@@ -36,7 +36,7 @@
     setAttribute, x, y
 */
 
-import featureLayer from "./FeatureLayer.js";
+import {defaultFeatureLayer} from "./FeatureLayer.js";
 import {SVG} from "leaflet";
 
 export default Object.freeze(function featureTile(coords, layer) {
@@ -50,18 +50,25 @@ export default Object.freeze(function featureTile(coords, layer) {
     m_svg.appendChild(m_rootGroup);
 
     function addFeature(feature, layerName, pxPerExtent) {
-        const featureStyle = layer.getFeatureStyle(feature, layerName);
+        // set the layer name into the feature so we don't have to pass it around everywhere.,
+        feature.layerName = layerName;
+
+        const featureStyle = layer.getFeatureStyle(feature);
         if (!featureStyle) {
             return;
         }
 
-        const ftrLyr = featureLayer(
+        const featureToLayer = layer.options?.featureToLayer || defaultFeatureLayer;
+        const ftrLyr = featureToLayer(
             feature,
-            layerName,
-            m_rootGroup,
             pxPerExtent,
             featureStyle
         );
+
+        const graphics = ftrLyr.createGraphics();
+        ftrLyr.setStyle(featureStyle);
+        m_rootGroup.appendChild(graphics);
+
         m_layers.push(ftrLyr);
         layer.addFeatureLayer(ftrLyr);
     }
