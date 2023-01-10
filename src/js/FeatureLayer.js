@@ -188,7 +188,7 @@ export function featurePathLayer(feature, pxPerExtent, options) {
             self.interactionPath = SVG.create("path");
             self.interactionPath.setAttribute("d", pathPoints);
             self.applyPathStyle(self.interactionPath, {
-                opacity: 0.20,
+                opacity: 0.0,
                 weight: options.interactionWeight || 10
             });
 
