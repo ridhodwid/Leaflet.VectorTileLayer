@@ -73,6 +73,10 @@ After the `load` event, it returns the bounds occupied by the features on
 all currently loaded tiles.
 
 `VectorTileLayer` supports all options provided by [`GridLayer`][GL].
+
+Feature objects created by `VectorTileLayer` have a `layerName` property
+which holds the name of the .pbf layer in which they were encoded.
+
 Additionally, the following options are provided:
 
 ```js
@@ -89,13 +93,19 @@ const options = {
         minDetailZoom, // default undefined
         maxDetailZoom, // default undefined
 
-        // Styling options for L.Polyline or L.Polygon. If it is a
-        // function, it will be passed the vector-tile feature, the layer
-        // name and the zoom level as parameters.
+        // Styling options. For polylines or polygons, these are
+        // `L.PathOptions`. For points, the `icon` property supplies an
+        // `L.Icon` to determine the appearance.  If this property is a
+        // function, it will be passed the vector-tile feature(which contains
+        // the layer name), and the zoom level as parameters.
         style, // default undefined
 
         // This works like the same option for `Leaflet.VectorGrid`.
         vectorTileLayerStyles, // default undefined
+
+        // The following optional function, if provided, will be passed a vector-tile
+        // feature, pixels-per-tile and style object to create each feature layer: 
+        featureToLayer,
 };
 
 const layer = vectorTileLayer(url, options);
@@ -110,6 +120,13 @@ layer.setStyle({ weight: 3 });
 All omitted options will be substituted by the default options for
 [`L.Polyline`][PL] or [`L.Polygon`][PG], as appropriate.
 
+
+Interactive Polyline Styling
+----------------------------
+
+For interactive features only, the special path option `interactionWeight`
+will be used to create a transparent line overlying the underlying visible
+line, with the given weight.
 
 Events
 ------
@@ -137,9 +154,6 @@ $ npm run build
 
 Limitations
 -----------
-
-Currently, only line and polygon features are visualised, but support for
-point features is planned in a future release.
 
 At this time, only SVG rendering and vector tiles in [`protobuf`][PBF]
 format are supported, but support for other renderers or formats may be
