@@ -95,8 +95,11 @@ function featureLayer(feature, pxPerExtent, options) {
             element.removeAttribute("pointer-events");
         }
 
-        if (options.className) {
-            DomUtil.addClass(element, options.className);
+        if (options.hidden) {
+            element.setAttribute("visibility", "hidden");
+        }
+        else {
+            element.removeAttribute("visibility");
         }
     };
 

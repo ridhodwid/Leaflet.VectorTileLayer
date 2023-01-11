@@ -121,6 +121,12 @@ All omitted options will be substituted by the default options for
 [`L.Polyline`][PL] or [`L.Polygon`][PG], as appropriate.
 
 
+Feature-level Visibility Control
+--------------------------------
+
+The style option `hidden` permits any feature to be hidden by setting the SVG
+attribute `visibility` to `hidden`.
+
 Interactive Polyline Styling
 ----------------------------
 
