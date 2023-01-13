@@ -50,10 +50,7 @@ export default Object.freeze(function featureTile(coords, layer) {
     m_svg.appendChild(m_rootGroup);
 
     function addFeature(feature, layerName, pxPerExtent) {
-        // set the layer name into the feature so we don't have to pass it around everywhere.,
-        feature.layerName = layerName;
-
-        const featureStyle = layer.getFeatureStyle(feature);
+        const featureStyle = layer.getFeatureStyle(feature, layerName);
         if (!featureStyle) {
             return;
         }
@@ -61,6 +58,7 @@ export default Object.freeze(function featureTile(coords, layer) {
         const featureToLayer = layer.options?.featureToLayer || defaultFeatureLayer;
         const ftrLyr = featureToLayer(
             feature,
+            layerName,
             pxPerExtent,
             featureStyle
         );

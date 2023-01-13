@@ -32,7 +32,7 @@
 /*property
     _map, addClass, addInteractiveTarget, addTo, appendChild, bbox, className,
     color, create, dashArray, dashOffset, feature, fill, fillColor, fillOpacity,
-    fillRule, freeze, interactive, lineCap, lineJoin, loadGeometry,
+    fillRule, freeze, interactive, layerName, lineCap, lineJoin, loadGeometry,
     map, opacity, options, pointsToPath, properties, prototype, removeAttribute,
     removeClass, removeFrom, removeInteractiveTarget, scaleBy, setAttribute,
     setStyle, stroke, type, types, weight
@@ -56,12 +56,13 @@ export const FeatureTypes = {
     Polygon: 3
 }
 
-function featureLayer(feature, pxPerExtent, options) {
+function featureLayer(feature, layerName, pxPerExtent, options) {
     const self = new Layer(options);
 
     options = extend({}, options);
 
     self.feature = feature;
+    self.layerName = layerName;
 
     // Compatibility with Leaflet.VectorGrid
     self.properties = feature.properties;
@@ -167,8 +168,8 @@ function featureLayer(feature, pxPerExtent, options) {
     return self;
 }
 
-export function featurePathLayer(feature, pxPerExtent, options) {
-    const self = featureLayer(feature, pxPerExtent, options);
+export function featurePathLayer(feature, layerName, pxPerExtent, options) {
+    const self = featureLayer(feature, layerName, pxPerExtent, options);
 
     self.setStyle = function setStyle(options) {
         self.applyBasicStyle(self.graphics, options);
@@ -208,8 +209,8 @@ export function featurePathLayer(feature, pxPerExtent, options) {
     return self;
 }
 
-export function featureIconLayer(feature, pxPerExtent, options) {
-    const self = featureLayer(feature, pxPerExtent, options);
+export function featureIconLayer(feature, layerName, pxPerExtent, options) {
+    const self = featureLayer(feature, layerName, pxPerExtent, options);
 
     self.setStyle = function setStyle(options) {
         self.applyBasicStyle(self.graphics, options);
@@ -229,14 +230,14 @@ export function featureIconLayer(feature, pxPerExtent, options) {
     return self;
 }    
 
-export function defaultFeatureLayer(feature, pxPerExtent, options) {
+export function defaultFeatureLayer(feature, layerName, pxPerExtent, options) {
     switch(feature.type) {
     case FeatureTypes.Point:
-        return featureIconLayer(feature, pxPerExtent, options);
+        return featureIconLayer(feature, layerName, pxPerExtent, options);
 
     case FeatureTypes.Polygon:
     case FeatureTypes.LineString:
-        return featurePathLayer(feature, pxPerExtent, options);
+        return featurePathLayer(feature, layerName, pxPerExtent, options);
 
     default:
         throw new Error('Unknown feature type');

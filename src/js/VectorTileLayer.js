@@ -84,10 +84,10 @@ export default Object.freeze(function vectorTileLayer(url, options) {
     const m_super = Object.getPrototypeOf(self);
     const m_featureStyle = {};
 
-    function legacyStyle(feature, zoom) {
+    function legacyStyle(feature, layerName, zoom) {
         const {getFeatureId, vectorTileLayerStyles} = options;
 
-        let layerStyle = vectorTileLayerStyles[feature.layerName];
+        let layerStyle = vectorTileLayerStyles[layerName];
         if (getFeatureId) {
             const fId = getFeatureId(feature);
             if (m_featureStyle[fId]) {
@@ -226,8 +226,8 @@ export default Object.freeze(function vectorTileLayer(url, options) {
         options.style = style;
 
         eachFeatureLayer(function (featureLayer) {
-            const {feature} = featureLayer;
-            const featureStyle = self.getFeatureStyle(feature);
+            const {feature, layerName} = featureLayer;
+            const featureStyle = self.getFeatureStyle(feature, layerName);
 
             featureLayer.setStyle(featureStyle);
         });
@@ -260,8 +260,8 @@ export default Object.freeze(function vectorTileLayer(url, options) {
         ).round();
     };
 
-    self.getFeatureStyle = function getFeatureStyle(feature) {
-        if (options.filter && !options.filter(feature, feature.layerName, m_zoom)) {
+    self.getFeatureStyle = function getFeatureStyle(feature, layerName) {
+        if (options.filter && !options.filter(feature, layerName, m_zoom)) {
             return;
         }
 
@@ -269,7 +269,7 @@ export default Object.freeze(function vectorTileLayer(url, options) {
 
         return (
             "function" === typeof style
-            ? style(feature, feature.layerName, m_zoom)
+            ? style(feature, layerName, m_zoom)
             : style
         );
     };
