@@ -95,6 +95,7 @@ const options = {
         style, // default undefined
 
         // This works like the same option for `Leaflet.VectorGrid`.
+        // Ignored if style is specified.
         vectorTileLayerStyles, // default undefined
 };
 

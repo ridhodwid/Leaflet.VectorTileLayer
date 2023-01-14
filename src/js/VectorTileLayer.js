@@ -116,7 +116,7 @@ export default Object.freeze(function vectorTileLayer(url, options) {
     }
 
     // Compatibility with Leaflet.VectorGrid
-    if (options.vectorTileLayerStyles) {
+    if (options.vectorTileLayerStyles && !options.style) {
         options.style = legacyStyle;
     }
 
