@@ -32,8 +32,8 @@
 /*property
     add, addFeatureLayer, addVectorTile, appendChild, coords, create, divideBy,
     domElement, eachFeatureLayer, extent, feature, forEach, freeze,
-    getFeatureStyle, getOrderedLayers, getTileSize, global, hasOwnProperty,
-    keys, layers, length, push, scaleBy, setAttribute, x, y
+    getFeatureStyle, getOrderedLayers, getTileSize, global, keys, layers,
+    length, push, scaleBy, setAttribute, x, y
 */
 
 import featureLayer from "./FeatureLayer.js";
@@ -70,7 +70,7 @@ export default Object.freeze(function featureTile(coords, layer) {
         layer.getOrderedLayers(
             Object.keys(vectorTile.layers)
         ).forEach(function (layerName) {
-            if (!vectorTile.layers.hasOwnProperty(layerName)) {
+            if (!vectorTile.layers[layerName]) {
                 return;
             }
             const tileLayer = vectorTile.layers[layerName];
