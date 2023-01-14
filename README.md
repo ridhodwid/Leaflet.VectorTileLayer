@@ -74,9 +74,6 @@ all currently loaded tiles.
 
 `VectorTileLayer` supports all options provided by [`GridLayer`][GL].
 
-Feature objects created by `VectorTileLayer` have a `layerName` property
-which holds the name of the .pbf layer in which they were encoded.
-
 Additionally, the following options are provided:
 
 ```js
