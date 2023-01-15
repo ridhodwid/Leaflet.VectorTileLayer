@@ -281,7 +281,7 @@ export default Object.freeze(function vectorTileLayer(url, options) {
         const layerOrder = options.layerOrder;
         return (
             undefined !== layerOrder
-            ? layerOrder(layerNames)
+            ? layerOrder(layerNames, m_zoom)
             : layerNames
         );
     };

@@ -88,9 +88,9 @@ const options = {
         filter, // default undefined
 
         // A function that receives a list of vector tile layer names and
-        // returns the names in the order in which they should be rendered,
-        // from bottom to top. The default is to render all layers as they
-        // appear in the tile.
+        // the zoom level and returns the names in the order in which they
+        // should be rendered, from bottom to top. The default is to render
+        // all layers as they appear in the tile.
         layerOrder, // default undefined
 
         // An array of vector tile layer names from bottom to top. Layers
