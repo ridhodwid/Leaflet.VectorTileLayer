@@ -153,9 +153,6 @@ $ npm run build
 Limitations
 -----------
 
-Currently, only line and polygon features are visualised, but support for
-point features is planned in a future release.
-
 At this time, only SVG rendering and vector tiles in [`protobuf`][PBF]
 format are supported, but support for other renderers or formats may be
 added through options in the future.
