@@ -30,15 +30,19 @@
  */
 
 /*property
-    _map, addClass, addInteractiveTarget, addTo, appendChild, bbox, className,
-    color, create, dashArray, dashOffset, feature, fill, fillColor, fillOpacity,
-    fillRule, freeze, interactive, layerName, lineCap, lineJoin, loadGeometry,
-    map, opacity, options, pointsToPath, properties, prototype, removeAttribute,
-    removeClass, removeFrom, removeInteractiveTarget, scaleBy, setAttribute,
-    setStyle, stroke, type, types, weight
+    LineString, Point, Polygon, Unknown, _map, addClass, addInteractiveTarget,
+    addTo, appendChild, applyBasicStyle, applyImageStyle, applyPathStyle, bbox,
+    className, color, create, createGraphics, dashArray, dashOffset, feature,
+    fill, fillColor, fillOpacity, fillRule, graphics, hidden, icon, iconAnchor,
+    iconSize, iconUrl, interactionPath, interactionWeight, interactive,
+    layerName, lineCap, lineJoin, loadGeometry, map, opacity, options,
+    pointsToPath, properties, prototype, radius, removeAttribute, removeClass,
+    removeFrom, removeInteractiveTarget, scaleBy, scalePoint, setAttribute,
+    setStyle, stroke, type, visiblePath, weight, x, y
 */
 
 import {
+    CircleMarker,
     DomUtil,
     Layer,
     Path,
@@ -54,12 +58,10 @@ export const FeatureTypes = {
     Point: 1,
     LineString: 2,
     Polygon: 3
-}
+};
 
 function featureLayer(feature, layerName, pxPerExtent, options) {
     const self = new Layer(options);
-
-    options = extend({}, options);
 
     self.feature = feature;
     self.layerName = layerName;
@@ -82,8 +84,8 @@ function featureLayer(feature, layerName, pxPerExtent, options) {
         delete self._map;
     };
 
-    self.applyBasicStyle = function applyBasicStyle(element, options) {
-        if (options.interactive) {
+    self.applyBasicStyle = function applyBasicStyle(element, style) {
+        if (style.interactive) {
             /*
              * Leaflet's "interactive" class only applies to
              * renderers that are immediate descendants of a
@@ -96,7 +98,7 @@ function featureLayer(feature, layerName, pxPerExtent, options) {
             element.removeAttribute("pointer-events");
         }
 
-        if (options.hidden) {
+        if (style.hidden) {
             element.setAttribute("visibility", "hidden");
         }
         else {
@@ -104,32 +106,24 @@ function featureLayer(feature, layerName, pxPerExtent, options) {
         }
     };
 
-    self.applyPathStyle = function applyPathStyle(path, options) {
-        options = extend(
-            {},
-            (
-                FeatureTypes.Polygon === self.feature.type
-                ? Polygon.prototype.options
-                : Path.prototype.options
-            ),
-            options
-        );
+    self.applyPathStyle = function applyPathStyle(path, style) {
+        style = extend({}, options, style);
 
-        if (options.stroke) {
-            path.setAttribute("stroke", options.color);
-            path.setAttribute("stroke-opacity", options.opacity);
-            path.setAttribute("stroke-width", options.weight);
-            path.setAttribute("stroke-linecap", options.lineCap);
-            path.setAttribute("stroke-linejoin", options.lineJoin);
+        if (style.stroke) {
+            path.setAttribute("stroke", style.color);
+            path.setAttribute("stroke-opacity", style.opacity);
+            path.setAttribute("stroke-width", style.weight);
+            path.setAttribute("stroke-linecap", style.lineCap);
+            path.setAttribute("stroke-linejoin", style.lineJoin);
 
-            if (options.dashArray) {
-                path.setAttribute("stroke-dasharray", options.dashArray);
+            if (style.dashArray) {
+                path.setAttribute("stroke-dasharray", style.dashArray);
             } else {
                 path.removeAttribute("stroke-dasharray");
             }
 
-            if (options.dashOffset) {
-                path.setAttribute("stroke-dashoffset", options.dashOffset);
+            if (style.dashOffset) {
+                path.setAttribute("stroke-dashoffset", style.dashOffset);
             } else {
                 path.removeAttribute("stroke-dashoffset");
             }
@@ -137,10 +131,10 @@ function featureLayer(feature, layerName, pxPerExtent, options) {
             path.setAttribute("stroke", "none");
         }
 
-        if (options.fill) {
-            path.setAttribute("fill", options.fillColor || options.color);
-            path.setAttribute("fill-opacity", options.fillOpacity);
-            path.setAttribute("fill-rule", options.fillRule || "evenodd");
+        if (style.fill) {
+            path.setAttribute("fill", style.fillColor || style.color);
+            path.setAttribute("fill-opacity", style.fillOpacity);
+            path.setAttribute("fill-rule", style.fillRule || "evenodd");
         } else {
             path.setAttribute("fill", "none");
         }
@@ -148,13 +142,13 @@ function featureLayer(feature, layerName, pxPerExtent, options) {
         return path;
     };
 
-    self.applyImageStyle = function applyImageStyle(image, options) {
-        if (options.icon) {
-            image.setAttribute("width", options.icon.options.iconSize[0]);
-            image.setAttribute("height", options.icon.options.iconSize[1]);
-            image.setAttribute("href", options.icon.options.iconUrl)
+    self.applyImageStyle = function applyImageStyle(image, style) {
+        if (style.icon) {
+            image.setAttribute("width", style.icon.options.iconSize[0]);
+            image.setAttribute("height", style.icon.options.iconSize[1]);
+            image.setAttribute("href", style.icon.options.iconUrl);
         }
-    }
+    };
 
     self.scalePoint = function scalePoint(p) {
         return point(p).scaleBy(pxPerExtent);
@@ -164,28 +158,61 @@ function featureLayer(feature, layerName, pxPerExtent, options) {
         const [x0, y0, x1, y1] = feature.bbox();
         return bounds(self.scalePoint([x0, y0]), self.scalePoint([x1, y1]));
     };
-    
+
     return self;
 }
 
 export function featurePathLayer(feature, layerName, pxPerExtent, options) {
+    options = extend(
+        {},
+        (
+            FeatureTypes.Polygon === feature.type
+            ? Polygon.prototype.options
+            : (
+                FeatureTypes.LineString === feature.type
+                ? Path.prototype.options
+                : CircleMarker.prototype.options
+            )
+        ),
+        options
+    );
+
     const self = featureLayer(feature, layerName, pxPerExtent, options);
 
-    self.setStyle = function setStyle(options) {
-        self.applyBasicStyle(self.graphics, options);
-        self.applyPathStyle(self.visiblePath, options);
+    self.setStyle = function setStyle(style) {
+        self.applyBasicStyle(self.graphics, style);
+        self.applyPathStyle(self.visiblePath, style);
     };
+
+    const geometry = feature.loadGeometry();
+    function createPoint() {
+        const r = options.radius;
+        const pt = self.scalePoint(geometry[0][0]);
+        const arc = `a${r} ${r} 0 0 0 0 `;
+        return `M${pt.x} ${pt.y - r}${arc}${2 * r}${arc}${-2 * r}`;
+    }
+
+    function createPath() {
+        return SVG.pointsToPath(
+            geometry.map((ring) => ring.map(self.scalePoint)),
+            FeatureTypes.Polygon === self.feature.type
+        );
+    }
 
     self.createGraphics = function createGraphics() {
         self.visiblePath = SVG.create("path");
 
-        const pathPoints = SVG.pointsToPath(
-            feature.loadGeometry().map((ring) => ring.map(self.scalePoint)),
-            FeatureTypes.Polygon === self.feature.type
+        const pathPoints = (
+            FeatureTypes.Point === feature.type
+            ? createPoint()
+            : createPath()
         );
         self.visiblePath.setAttribute("d", pathPoints);
 
-        if (FeatureTypes.LineString === self.feature.type && options.interactive) {
+        if (
+            FeatureTypes.LineString === self.feature.type &&
+            options.interactive
+        ) {
             // For an interactive unfilled path, we are going to create a
             // group with the above visible, styled line plus a thicker,
             // invisible version of the same line.
@@ -202,6 +229,9 @@ export function featurePathLayer(feature, layerName, pxPerExtent, options) {
         }
         else {
             self.graphics = self.visiblePath;
+        }
+        if (options.className) {
+            DomUtil.addClass(self.visiblePath, options.className);
         }
         return self.graphics;
     };
@@ -228,18 +258,21 @@ export function featureIconLayer(feature, layerName, pxPerExtent, options) {
     };
 
     return self;
-}    
+}
 
 export function defaultFeatureLayer(feature, layerName, pxPerExtent, options) {
     switch(feature.type) {
     case FeatureTypes.Point:
-        return featureIconLayer(feature, layerName, pxPerExtent, options);
+        if (options.icon) {
+            return featureIconLayer(feature, layerName, pxPerExtent, options);
+        }
+        return featurePathLayer(feature, layerName, pxPerExtent, options);
 
     case FeatureTypes.Polygon:
     case FeatureTypes.LineString:
         return featurePathLayer(feature, layerName, pxPerExtent, options);
 
     default:
-        throw new Error('Unknown feature type');
+        throw new Error("Unknown feature type");
     }
 }

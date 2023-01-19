@@ -33,14 +33,14 @@
     _globalTileRange, _tileZoom, abs, addEventParent, addFeatureLayer, addTo,
     addVectorTile, arrayBuffer, bbox, call, coords, createTile, crs, divideBy,
     domElement, eachFeatureLayer, extend, feature, filter, forEach, freeze,
-    getBounds, getFeatureId, getFeatureStyle, getPrototypeOf, getTileSize,
-    getTileUrl, getZoom, getZoomScale, global, infinite, isArray, join, keys,
-    layerName, length, max, maxDetailZoom, maxZoom, min, minDetailZoom, minZoom,
-    off, ok, on, onAdd, onRemove, options, properties, removeEventParent,
-    removeFeatureLayer, removeFrom, resetFeatureStyle, round, s,
-    setFeatureStyle, setStyle, split, status, statusText, style, subdomains,
-    template, then, unproject, vectorTileLayerStyles, x, y, z, zoomOffset,
-    zoomReverse
+    getBounds, getFeatureId, getFeatureStyle, getOrderedLayers, getPrototypeOf,
+    getTileSize, getTileUrl, getZoom, getZoomScale, global, infinite, isArray,
+    join, keys, layerName, layerOrder, layers, length, max, maxDetailZoom,
+    maxZoom, min, minDetailZoom, minZoom, off, ok, on, onAdd, onRemove, options,
+    properties, removeEventParent, removeFeatureLayer, removeFrom,
+    resetFeatureStyle, round, s, setFeatureStyle, setStyle, split, status,
+    statusText, style, subdomains, template, then, unproject,
+    vectorTileLayerStyles, x, y, z, zoomOffset, zoomReverse
 */
 
 import featureTile from "./FeatureTile.js";
@@ -70,6 +70,8 @@ function tileId(coords) {
 
 const defaultOptions = {
     filter: undefined,
+    layerOrder: undefined,
+    layers: undefined,
     minZoom: 0,
     maxZoom: 18,
     maxDetailZoom: undefined,
@@ -116,7 +118,7 @@ export default Object.freeze(function vectorTileLayer(url, options) {
     }
 
     // Compatibility with Leaflet.VectorGrid
-    if (options.vectorTileLayerStyles) {
+    if (options.vectorTileLayerStyles && !options.style) {
         options.style = legacyStyle;
     }
 
@@ -271,6 +273,16 @@ export default Object.freeze(function vectorTileLayer(url, options) {
             "function" === typeof style
             ? style(feature, layerName, m_zoom)
             : style
+        );
+    };
+
+    self.getOrderedLayers = function getOrderedLayers(layerNames) {
+        layerNames = options.layers || layerNames;
+        const layerOrder = options.layerOrder;
+        return (
+            undefined !== layerOrder
+            ? layerOrder(layerNames, m_zoom)
+            : layerNames
         );
     };
 

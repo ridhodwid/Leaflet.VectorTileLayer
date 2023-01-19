@@ -68,6 +68,9 @@ highlight certain features, for example.
 For compatibility, support for the `vectorTileLayerStyles` option and
 `set/resetFeatureStyle()` method is also provided.
 
+`VectorTileLayer` also supports ordering the layers based on their names
+using an option like `layers: ["a", "b", "c"]`.
+
 Another added feature of `VectorTileLayer` is a `getBounds()` function.
 After the `load` event, it returns the bounds occupied by the features on
 all currently loaded tiles.
@@ -79,30 +82,44 @@ Additionally, the following options are provided:
 ```js
 const url = 'https://{s}.example.com/tiles/{z}/{x}/{y}.pbf';
 const options = {
+        // The following optional function will be passed a vector-tile
+        // feature, pixels-per-tile and style object to create each feature
+        // layer.
+        featureToLayer, // default undefined
+
         // A function that will be used to decide whether to include a
         // feature or not. If specified, it will be passed the vector-tile
         // feature, the layer name and the zoom level. The default is to
         // include all features.
         filter, // default undefined
 
+        // A function that receives a list of vector tile layer names and
+        // the zoom level and returns the names in the order in which they
+        // should be rendered, from bottom to top. The default is to render
+        // all layers as they appear in the tile.
+        layerOrder, // default undefined
+
+        // An array of vector tile layer names from bottom to top. Layers
+        // that are missing from this list will not be rendered. The
+        // default is to render all layers as they appear in the tile.
+        layers, // default undefined
+
         // Specify zoom range in which tiles are loaded. Tiles will be
         // rendered from the same data for Zoom levels outside the range.
         minDetailZoom, // default undefined
         maxDetailZoom, // default undefined
 
-        // Styling options. For polylines or polygons, these are
-        // `L.PathOptions`. For points, the `icon` property supplies an
-        // `L.Icon` to determine the appearance.  If this property is a
-        // function, it will be passed the vector-tile feature(which contains
-        // the layer name), and the zoom level as parameters.
+        // Styling options. For points, these are `L.CircleMarker` options,
+        // or the `icon` property supplies an `L.Icon` to determine the
+        // appearance. For polylines or polygons, these are `L.Path`
+        // options. If this property is a function, it will be passed the
+        // vector-tile feature, the layer name and the zoom level as
+        // parameters.
         style, // default undefined
 
         // This works like the same option for `Leaflet.VectorGrid`.
+        // Ignored if style is specified.
         vectorTileLayerStyles, // default undefined
-
-        // The following optional function, if provided, will be passed a vector-tile
-        // feature, pixels-per-tile and style object to create each feature layer: 
-        featureToLayer,
 };
 
 const layer = vectorTileLayer(url, options);
@@ -115,7 +132,8 @@ layer.setStyle({ weight: 3 });
 ```
 
 All omitted options will be substituted by the default options for
-[`L.Polyline`][PL] or [`L.Polygon`][PG], as appropriate.
+[`L.CircleMarker`][CM], [`L.Polyline`][PL] or [`L.Polygon`][PG], as
+appropriate.
 
 
 Feature-level Visibility Control
@@ -163,12 +181,13 @@ format are supported, but support for other renderers or formats may be
 added through options in the future.
 
 
-[CRS]:  https://leafletjs.com/reference-1.7.1.html#crs
-[GL]:   http://leafletjs.com/reference-1.0.3.html#gridlayer
+[CM]: https://leafletjs.com/reference.html#circlemarker
+[CRS]: https://leafletjs.com/reference#crs
+[GL]: https://leafletjs.com/reference.html#gridlayer
 [L]:    http://leafletjs.com/
 [LVG]:  https://github.com/Leaflet/Leaflet.VectorGrid
 [PBF]:  https://developers.google.com/protocol-buffers/
-[PG]:   http://leafletjs.com/reference-1.0.3.html#polygon
-[PL]:   http://leafletjs.com/reference-1.0.3.html#polyline
+[PG]: https://leafletjs.com/reference.html#polygon
+[PL]: https://leafletjs.com/reference.html#polyline
 [VT]:   https://github.com/mapbox/vector-tile-spec
 [Y]:    https://github.com/Leaflet/Leaflet/issues/4284

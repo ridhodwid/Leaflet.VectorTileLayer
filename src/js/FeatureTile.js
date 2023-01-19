@@ -30,10 +30,11 @@
  */
 
 /*property
-    add, addFeatureLayer, addVectorTile, appendChild, coords, create, divideBy,
-    domElement, eachFeatureLayer, extent, feature, forEach, freeze,
-    getFeatureStyle, getTileSize, global, keys, layers, length, push, scaleBy,
-    setAttribute, x, y
+    add, addFeatureLayer, addVectorTile, appendChild, coords, create,
+    createGraphics, divideBy, domElement, eachFeatureLayer, extent, feature,
+    featureToLayer, forEach, freeze, getFeatureStyle, getOrderedLayers,
+    getTileSize, global, keys, layers, length, options, push, scaleBy,
+    setAttribute, setStyle, x, y
 */
 
 import {defaultFeatureLayer} from "./FeatureLayer.js";
@@ -55,7 +56,9 @@ export default Object.freeze(function featureTile(coords, layer) {
             return;
         }
 
-        const featureToLayer = layer.options?.featureToLayer || defaultFeatureLayer;
+        const featureToLayer = (
+            layer.options?.featureToLayer || defaultFeatureLayer
+        );
         const ftrLyr = featureToLayer(
             feature,
             layerName,
@@ -72,7 +75,12 @@ export default Object.freeze(function featureTile(coords, layer) {
     }
 
     self.addVectorTile = function addVectorTile(vectorTile) {
-        Object.keys(vectorTile.layers).forEach(function (layerName) {
+        layer.getOrderedLayers(
+            Object.keys(vectorTile.layers)
+        ).forEach(function (layerName) {
+            if (!vectorTile.layers[layerName]) {
+                return;
+            }
             const tileLayer = vectorTile.layers[layerName];
             const pxPerExtent = m_tileSize.divideBy(tileLayer.extent);
 

@@ -1,6 +1,6 @@
 {
   "name": "leaflet-vector-tile-layer",
-  "version": "0.8.0",
+  "version": "0.10.0",
   "description": "Leaflet layer for vector tiles",
   "keywords": [
     "leaflet",
@@ -39,15 +39,15 @@
     "prepare": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "type": "module",
   "devDependencies": {
     "@mapbox/vector-tile": "*",
-    "@rollup/plugin-buble": "*",
     "@rollup/plugin-commonjs": "*",
     "@rollup/plugin-node-resolve": "*",
+    "@rollup/plugin-terser": "*",
     "jslint-cli": "*",
     "pbf": "*",
-    "rollup": "*",
-    "rollup-plugin-terser": "*"
+    "rollup": "*"
   },
   "peerDependencies": {
     "leaflet": "^1.0.0"
