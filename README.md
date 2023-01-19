@@ -103,9 +103,9 @@ const options = {
         minDetailZoom, // default undefined
         maxDetailZoom, // default undefined
 
-        // Styling options for L.Polyline or L.Polygon. If it is a
-        // function, it will be passed the vector-tile feature, the layer
-        // name and the zoom level as parameters.
+        // Styling options for L.CircleMarker, L.Polyline or L.Polygon. If
+        // it is a function, it will be passed the vector-tile feature, the
+        // layer name and the zoom level as parameters.
         style, // default undefined
 
         // This works like the same option for `Leaflet.VectorGrid`.
@@ -123,7 +123,8 @@ layer.setStyle({ weight: 3 });
 ```
 
 All omitted options will be substituted by the default options for
-[`L.Polyline`][PL] or [`L.Polygon`][PG], as appropriate.
+[`L.CircleMarker`][CM], [`L.Polyline`][PL] or [`L.Polygon`][PG], as
+appropriate.
 
 
 Events
@@ -153,20 +154,18 @@ $ npm run build
 Limitations
 -----------
 
-Currently, only line and polygon features are visualised, but support for
-point features is planned in a future release.
-
 At this time, only SVG rendering and vector tiles in [`protobuf`][PBF]
 format are supported, but support for other renderers or formats may be
 added through options in the future.
 
 
-[CRS]:  https://leafletjs.com/reference-1.7.1.html#crs
-[GL]:   http://leafletjs.com/reference-1.0.3.html#gridlayer
+[CM]: https://leafletjs.com/reference.html#circlemarker
+[CRS]: https://leafletjs.com/reference#crs
+[GL]: https://leafletjs.com/reference.html#gridlayer
 [L]:    http://leafletjs.com/
 [LVG]:  https://github.com/Leaflet/Leaflet.VectorGrid
 [PBF]:  https://developers.google.com/protocol-buffers/
-[PG]:   http://leafletjs.com/reference-1.0.3.html#polygon
-[PL]:   http://leafletjs.com/reference-1.0.3.html#polyline
+[PG]: https://leafletjs.com/reference.html#polygon
+[PL]: https://leafletjs.com/reference.html#polyline
 [VT]:   https://github.com/mapbox/vector-tile-spec
 [Y]:    https://github.com/Leaflet/Leaflet/issues/4284

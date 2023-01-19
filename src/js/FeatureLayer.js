@@ -33,12 +33,13 @@
     _map, addClass, addInteractiveTarget, addTo, appendChild, bbox, className,
     color, create, dashArray, dashOffset, feature, fill, fillColor, fillOpacity,
     fillRule, freeze, interactive, layerName, lineCap, lineJoin, loadGeometry,
-    map, opacity, options, pointsToPath, properties, prototype, removeAttribute,
-    removeClass, removeFrom, removeInteractiveTarget, scaleBy, setAttribute,
-    setStyle, stroke, type, types, weight
+    map, opacity, options, pointsToPath, properties, prototype, radius,
+    removeAttribute, removeClass, removeFrom, removeInteractiveTarget, scaleBy,
+    setAttribute, setStyle, stroke, type, types, weight, x, y
 */
 
 import {
+    CircleMarker,
     DomUtil,
     Layer,
     Path,
@@ -55,7 +56,19 @@ function featureLayer(feature, layerName, rootGroup, pxPerExtent, options) {
     const m_path = SVG.create("path");
     const m_type = VectorTileFeature.types[feature.type];
 
-    options = extend({}, options);
+    options = extend(
+        {},
+        (
+            "Polygon" === m_type
+            ? Polygon.prototype.options
+            : (
+                "LineString" === m_type
+                ? Path.prototype.options
+                : CircleMarker.prototype.options
+            )
+        ),
+        options
+    );
 
     self.feature = feature;
     self.layerName = layerName;
@@ -78,34 +91,26 @@ function featureLayer(feature, layerName, rootGroup, pxPerExtent, options) {
         delete self._map;
     };
 
-    self.setStyle = function setStyle(options) {
+    self.setStyle = function setStyle(style) {
         const path = m_path;
 
-        options = extend(
-            {},
-            (
-                "Polygon" === m_type
-                ? Polygon.prototype.options
-                : Path.prototype.options
-            ),
-            options
-        );
+        style = extend({}, options, style);
 
-        if (options.stroke) {
-            path.setAttribute("stroke", options.color);
-            path.setAttribute("stroke-opacity", options.opacity);
-            path.setAttribute("stroke-width", options.weight);
-            path.setAttribute("stroke-linecap", options.lineCap);
-            path.setAttribute("stroke-linejoin", options.lineJoin);
+        if (style.stroke) {
+            path.setAttribute("stroke", style.color);
+            path.setAttribute("stroke-opacity", style.opacity);
+            path.setAttribute("stroke-width", style.weight);
+            path.setAttribute("stroke-linecap", style.lineCap);
+            path.setAttribute("stroke-linejoin", style.lineJoin);
 
-            if (options.dashArray) {
-                path.setAttribute("stroke-dasharray", options.dashArray);
+            if (style.dashArray) {
+                path.setAttribute("stroke-dasharray", style.dashArray);
             } else {
                 path.removeAttribute("stroke-dasharray");
             }
 
-            if (options.dashOffset) {
-                path.setAttribute("stroke-dashoffset", options.dashOffset);
+            if (style.dashOffset) {
+                path.setAttribute("stroke-dashoffset", style.dashOffset);
             } else {
                 path.removeAttribute("stroke-dashoffset");
             }
@@ -113,15 +118,15 @@ function featureLayer(feature, layerName, rootGroup, pxPerExtent, options) {
             path.setAttribute("stroke", "none");
         }
 
-        if (options.fill) {
-            path.setAttribute("fill", options.fillColor || options.color);
-            path.setAttribute("fill-opacity", options.fillOpacity);
-            path.setAttribute("fill-rule", options.fillRule || "evenodd");
+        if (style.fill) {
+            path.setAttribute("fill", style.fillColor || style.color);
+            path.setAttribute("fill-opacity", style.fillOpacity);
+            path.setAttribute("fill-rule", style.fillRule || "evenodd");
         } else {
             path.setAttribute("fill", "none");
         }
 
-        if (options.interactive) {
+        if (style.interactive) {
             /*
              * Leaflet's "interactive" class only applies to
              * renderers that are immediate descendants of a
@@ -144,28 +149,35 @@ function featureLayer(feature, layerName, rootGroup, pxPerExtent, options) {
         return bounds(scalePoint([x0, y0]), scalePoint([x1, y1]));
     };
 
+    const geometry = feature.loadGeometry();
     switch (m_type) {
     case "Point":
+        const radius = options.radius;
+        const pt = scalePoint(geometry[0][0]);
+        const arc = `a${radius} ${radius} 0 0 0 0 `;
+        m_path.setAttribute(
+            "d",
+            `M${pt.x} ${pt.y - radius}${arc}${2 * radius}${arc}${-2 * radius}`
+        );
         break;
     case "LineString":
     case "Polygon":
         m_path.setAttribute(
             "d",
             SVG.pointsToPath(
-                feature.loadGeometry().map((ring) => ring.map(scalePoint)),
+                geometry.map((ring) => ring.map(scalePoint)),
                 "Polygon" === m_type
             )
         );
-
-        if (options.className) {
-            DomUtil.addClass(m_path, options.className);
-        }
-        self.setStyle(options);
-
-        rootGroup.appendChild(m_path);
         break;
     }
 
+    if (options.className) {
+        DomUtil.addClass(m_path, options.className);
+    }
+    self.setStyle(options);
+
+    rootGroup.appendChild(m_path);
     return self;
 }
 
