@@ -150,8 +150,7 @@ function featureLayer(feature, layerName, rootGroup, pxPerExtent, options) {
     };
 
     const geometry = feature.loadGeometry();
-    switch (m_type) {
-    case "Point":
+    function createPoint() {
         const radius = options.radius;
         const pt = scalePoint(geometry[0][0]);
         const arc = `a${radius} ${radius} 0 0 0 0 `;
@@ -159,6 +158,11 @@ function featureLayer(feature, layerName, rootGroup, pxPerExtent, options) {
             "d",
             `M${pt.x} ${pt.y - radius}${arc}${2 * radius}${arc}${-2 * radius}`
         );
+    }
+
+    switch (m_type) {
+    case "Point":
+        createPoint();
         break;
     case "LineString":
     case "Polygon":
