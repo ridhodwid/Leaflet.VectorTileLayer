@@ -31,19 +31,21 @@
 
 /*property
     _globalTileRange, _tileZoom, abs, addEventParent, addFeatureLayer, addTo,
-    addVectorTile, arrayBuffer, bbox, call, coords, createTile, crs, divideBy,
-    domElement, eachFeatureLayer, extend, feature, filter, forEach, freeze,
-    getBounds, getFeatureId, getFeatureStyle, getOrderedLayers, getPrototypeOf,
-    getTileSize, getTileUrl, getZoom, getZoomScale, global, infinite, isArray,
-    join, keys, layerName, layerOrder, layers, length, max, maxDetailZoom,
-    maxZoom, min, minDetailZoom, minZoom, off, ok, on, onAdd, onRemove, options,
-    properties, removeEventParent, removeFeatureLayer, removeFrom,
-    resetFeatureStyle, round, s, setFeatureStyle, setStyle, split, status,
-    statusText, style, subdomains, template, then, unproject,
-    vectorTileLayerStyles, x, y, z, zoomOffset, zoomReverse
+     addVectorTile, arrayBuffer, bbox, call, coords, createTile, crs,
+     divideBy, domElement, eachFeatureLayer, extend, feature, featureToLayer,
+     filter, forEach, freeze, getBounds, getFeatureId, getFeatureStyle,
+     getOrderedLayers, getPrototypeOf, getTileSize, getTileUrl, getZoom,
+     getZoomScale, global, infinite, isArray, join, keys, layerName,
+     layerOrder, layers, length, max, maxDetailZoom, maxZoom, min,
+     minDetailZoom, minZoom, off, ok, on, onAdd, onRemove, options,
+     properties, removeEventParent, removeFeatureLayer, removeFrom,
+     resetFeatureStyle, round, s, setFeatureStyle, setStyle, split, status,
+     statusText, style, subdomains, template, then, unproject,
+     vectorTileLayerStyles, x, y, z, zoomOffset, zoomReverse
 */
 
 import featureTile from "./FeatureTile.js";
+import {defaultFeatureLayer} from "./FeatureLayer.js";
 import fetch from "./fetch.js";
 import {GridLayer, Util, latLngBounds} from "leaflet";
 import Pbf from "pbf";
@@ -69,6 +71,7 @@ function tileId(coords) {
 }
 
 const defaultOptions = {
+    featureToLayer: undefined,
     filter: undefined,
     layerOrder: undefined,
     layers: undefined,
@@ -284,6 +287,10 @@ export default Object.freeze(function vectorTileLayer(url, options) {
             ? layerOrder(layerNames, m_zoom)
             : layerNames
         );
+    };
+
+    self.featureToLayer = function featureToLayer() {
+        return options.featureToLayer || defaultFeatureLayer;
     };
 
     self.addFeatureLayer = function addFeatureLayer(featureLayer) {

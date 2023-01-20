@@ -37,7 +37,6 @@
     setAttribute, setStyle, x, y
 */
 
-import {defaultFeatureLayer} from "./FeatureLayer.js";
 import {SVG} from "leaflet";
 
 export default Object.freeze(function featureTile(coords, layer) {
@@ -56,9 +55,7 @@ export default Object.freeze(function featureTile(coords, layer) {
             return;
         }
 
-        const featureToLayer = (
-            layer.options?.featureToLayer || defaultFeatureLayer
-        );
+        const featureToLayer = layer.featureToLayer()
         const ftrLyr = featureToLayer(
             feature,
             layerName,
