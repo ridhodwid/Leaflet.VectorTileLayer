@@ -31,7 +31,7 @@
 
 /*property
     add, addFeatureLayer, addVectorTile, appendChild, coords, create,
-    createGraphics, divideBy, domElement, eachFeatureLayer, extent, feature,
+    divideBy, domElement, eachFeatureLayer, extent, feature,
     featureToLayer, forEach, freeze, getFeatureStyle, getOrderedLayers,
     getTileSize, global, keys, layers, length, options, push, scaleBy,
     setAttribute, setStyle, x, y
@@ -66,9 +66,8 @@ export default Object.freeze(function featureTile(coords, layer) {
             featureStyle
         );
 
-        const graphics = ftrLyr.createGraphics();
         ftrLyr.setStyle(featureStyle);
-        m_rootGroup.appendChild(graphics);
+        m_rootGroup.appendChild(ftrLyr.graphics);
 
         m_layers.push(ftrLyr);
         layer.addFeatureLayer(ftrLyr);

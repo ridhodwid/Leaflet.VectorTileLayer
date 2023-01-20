@@ -32,7 +32,7 @@
 /*property
     LineString, Point, Polygon, Unknown, _map, addClass, addInteractiveTarget,
     addTo, appendChild, applyBasicStyle, applyImageStyle, applyPathStyle, bbox,
-    className, color, create, createGraphics, dashArray, dashOffset, feature,
+    className, color, create, dashArray, dashOffset, feature,
     fill, fillColor, fillOpacity, fillRule, graphics, hidden, icon, iconAnchor,
     iconSize, iconUrl, interactionPath, interactionWeight, interactive,
     layerName, lineCap, lineJoin, loadGeometry, map, opacity, options,
@@ -60,7 +60,7 @@ export const FeatureTypes = {
     Polygon: 3
 };
 
-function featureLayer(feature, layerName, pxPerExtent, options) {
+export function featureLayer(feature, layerName, pxPerExtent, options) {
     const self = new Layer(options);
 
     self.feature = feature;
@@ -199,42 +199,39 @@ export function featurePathLayer(feature, layerName, pxPerExtent, options) {
         );
     }
 
-    self.createGraphics = function createGraphics() {
-        self.visiblePath = SVG.create("path");
+    self.visiblePath = SVG.create("path");
 
-        const pathPoints = (
-            FeatureTypes.Point === feature.type
-            ? createPoint()
-            : createPath()
-        );
-        self.visiblePath.setAttribute("d", pathPoints);
+    const pathPoints = (
+        FeatureTypes.Point === feature.type
+        ? createPoint()
+        : createPath()
+    );
+    self.visiblePath.setAttribute("d", pathPoints);
 
-        if (
-            FeatureTypes.LineString === self.feature.type &&
-            options.interactive
-        ) {
-            // For an interactive unfilled path, we are going to create a
-            // group with the above visible, styled line plus a thicker,
-            // invisible version of the same line.
-            self.interactionPath = SVG.create("path");
-            self.interactionPath.setAttribute("d", pathPoints);
-            self.applyPathStyle(self.interactionPath, {
-                opacity: 0.0,
-                weight: options.interactionWeight || 10
-            });
+    if (
+        FeatureTypes.LineString === self.feature.type &&
+        options.interactive
+    ) {
+        // For an interactive unfilled path, we are going to create a
+        // group with the above visible, styled line plus a thicker,
+        // invisible version of the same line.
+        self.interactionPath = SVG.create("path");
+        self.interactionPath.setAttribute("d", pathPoints);
+        self.applyPathStyle(self.interactionPath, {
+            opacity: 0.0,
+            weight: options.interactionWeight || 10
+        });
 
-            self.graphics = SVG.create("g");
-            self.graphics.appendChild(self.visiblePath);
-            self.graphics.appendChild(self.interactionPath);
-        }
-        else {
-            self.graphics = self.visiblePath;
-        }
-        if (options.className) {
-            DomUtil.addClass(self.visiblePath, options.className);
-        }
-        return self.graphics;
-    };
+        self.graphics = SVG.create("g");
+        self.graphics.appendChild(self.visiblePath);
+        self.graphics.appendChild(self.interactionPath);
+    }
+    else {
+        self.graphics = self.visiblePath;
+    }
+    if (options.className) {
+        DomUtil.addClass(self.visiblePath, options.className);
+    }
 
     return self;
 }
@@ -247,15 +244,12 @@ export function featureIconLayer(feature, layerName, pxPerExtent, options) {
         self.applyImageStyle(self.graphics, options);
     };
 
-    self.createGraphics = function createGraphics() {
-        self.graphics = SVG.create("image");
+    self.graphics = SVG.create("image");
 
-        const pos = self.scalePoint(feature.loadGeometry()[0][0]);
-        const anchor = options.icon.options.iconAnchor || [0,0];
-        self.graphics.setAttribute("x", pos.x - anchor[0]);
-        self.graphics.setAttribute("y", pos.y - anchor[1]);
-        return self.graphics;
-    };
+    const pos = self.scalePoint(feature.loadGeometry()[0][0]);
+    const anchor = options.icon.options.iconAnchor || [0,0];
+    self.graphics.setAttribute("x", pos.x - anchor[0]);
+    self.graphics.setAttribute("y", pos.y - anchor[1]);
 
     return self;
 }
