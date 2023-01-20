@@ -53,12 +53,7 @@ import {
     point
 } from "leaflet";
 
-export const FeatureTypes = {
-    Unknown: 0,
-    Point: 1,
-    LineString: 2,
-    Polygon: 3
-};
+import {VectorTileFeature} from "@mapbox/vector-tile";
 
 export function featureLayer(feature, layerName, pxPerExtent, options) {
     const self = new Layer(options);
@@ -163,13 +158,14 @@ export function featureLayer(feature, layerName, pxPerExtent, options) {
 }
 
 export function featurePathLayer(feature, layerName, pxPerExtent, options) {
+    const featureType = VectorTileFeature.types[feature.type];
     options = extend(
         {},
         (
-            FeatureTypes.Polygon === feature.type
+            "Polygon" === featureType
             ? Polygon.prototype.options
             : (
-                FeatureTypes.LineString === feature.type
+                "LineString" === featureType
                 ? Path.prototype.options
                 : CircleMarker.prototype.options
             )
@@ -195,21 +191,21 @@ export function featurePathLayer(feature, layerName, pxPerExtent, options) {
     function createPath() {
         return SVG.pointsToPath(
             geometry.map((ring) => ring.map(self.scalePoint)),
-            FeatureTypes.Polygon === self.feature.type
+            "Polygon" === featureType
         );
     }
 
     self.visiblePath = SVG.create("path");
 
     const pathPoints = (
-        FeatureTypes.Point === feature.type
+        "Point" === featureType
         ? createPoint()
         : createPath()
     );
     self.visiblePath.setAttribute("d", pathPoints);
 
     if (
-        FeatureTypes.LineString === self.feature.type &&
+        "LineString" === featureType &&
         options.interactive
     ) {
         // For an interactive unfilled path, we are going to create a
@@ -255,15 +251,15 @@ export function featureIconLayer(feature, layerName, pxPerExtent, options) {
 }
 
 export function defaultFeatureLayer(feature, layerName, pxPerExtent, options) {
-    switch(feature.type) {
-    case FeatureTypes.Point:
+    switch(VectorTileFeature.types[feature.type]) {
+    case "Point":
         if (options.icon) {
             return featureIconLayer(feature, layerName, pxPerExtent, options);
         }
         return featurePathLayer(feature, layerName, pxPerExtent, options);
 
-    case FeatureTypes.Polygon:
-    case FeatureTypes.LineString:
+    case "Polygon":
+    case "LineString":
         return featurePathLayer(feature, layerName, pxPerExtent, options);
 
     default:
