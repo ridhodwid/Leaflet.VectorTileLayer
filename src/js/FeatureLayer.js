@@ -177,7 +177,7 @@ export function featurePathLayer(feature, layerName, pxPerExtent, options) {
 
     self.setStyle = function setStyle(style) {
         self.applyBasicStyle(self.graphics, style);
-        self.applyPathStyle(self.visiblePath, style);
+        self.applyPathStyle(self.graphics, style);
     };
 
     const geometry = feature.loadGeometry();
@@ -195,39 +195,14 @@ export function featurePathLayer(feature, layerName, pxPerExtent, options) {
         );
     }
 
-    self.visiblePath = SVG.create("path");
+    self.graphics = SVG.create("path");
 
     const pathPoints = (
         "Point" === featureType
         ? createPoint()
         : createPath()
     );
-    self.visiblePath.setAttribute("d", pathPoints);
-
-    if (
-        "LineString" === featureType &&
-        options.interactive
-    ) {
-        // For an interactive unfilled path, we are going to create a
-        // group with the above visible, styled line plus a thicker,
-        // invisible version of the same line.
-        self.interactionPath = SVG.create("path");
-        self.interactionPath.setAttribute("d", pathPoints);
-        self.applyPathStyle(self.interactionPath, {
-            opacity: 0.0,
-            weight: options.interactionWeight || 10
-        });
-
-        self.graphics = SVG.create("g");
-        self.graphics.appendChild(self.visiblePath);
-        self.graphics.appendChild(self.interactionPath);
-    }
-    else {
-        self.graphics = self.visiblePath;
-    }
-    if (options.className) {
-        DomUtil.addClass(self.visiblePath, options.className);
-    }
+    self.graphics.setAttribute("d", pathPoints);
 
     return self;
 }
