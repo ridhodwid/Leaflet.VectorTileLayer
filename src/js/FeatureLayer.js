@@ -79,72 +79,6 @@ export function featureLayer(feature, layerName, pxPerExtent, options) {
         delete self._map;
     };
 
-    self.applyBasicStyle = function applyBasicStyle(element, style) {
-        if (style.interactive) {
-            /*
-             * Leaflet's "interactive" class only applies to
-             * renderers that are immediate descendants of a
-             * pane.
-             */
-            element.setAttribute("pointer-events", "auto");
-            DomUtil.addClass(element, "leaflet-interactive");
-        } else {
-            DomUtil.removeClass(element, "leaflet-interactive");
-            element.removeAttribute("pointer-events");
-        }
-
-        if (style.hidden) {
-            element.setAttribute("visibility", "hidden");
-        }
-        else {
-            element.removeAttribute("visibility");
-        }
-    };
-
-    self.applyPathStyle = function applyPathStyle(path, style) {
-        style = extend({}, options, style);
-
-        if (style.stroke) {
-            path.setAttribute("stroke", style.color);
-            path.setAttribute("stroke-opacity", style.opacity);
-            path.setAttribute("stroke-width", style.weight);
-            path.setAttribute("stroke-linecap", style.lineCap);
-            path.setAttribute("stroke-linejoin", style.lineJoin);
-
-            if (style.dashArray) {
-                path.setAttribute("stroke-dasharray", style.dashArray);
-            } else {
-                path.removeAttribute("stroke-dasharray");
-            }
-
-            if (style.dashOffset) {
-                path.setAttribute("stroke-dashoffset", style.dashOffset);
-            } else {
-                path.removeAttribute("stroke-dashoffset");
-            }
-        } else {
-            path.setAttribute("stroke", "none");
-        }
-
-        if (style.fill) {
-            path.setAttribute("fill", style.fillColor || style.color);
-            path.setAttribute("fill-opacity", style.fillOpacity);
-            path.setAttribute("fill-rule", style.fillRule || "evenodd");
-        } else {
-            path.setAttribute("fill", "none");
-        }
-
-        return path;
-    };
-
-    self.applyImageStyle = function applyImageStyle(image, style) {
-        if (style.icon) {
-            image.setAttribute("width", style.icon.options.iconSize[0]);
-            image.setAttribute("height", style.icon.options.iconSize[1]);
-            image.setAttribute("href", style.icon.options.iconUrl);
-        }
-    };
-
     self.scalePoint = function scalePoint(p) {
         return point(p).scaleBy(pxPerExtent);
     };
@@ -154,8 +88,80 @@ export function featureLayer(feature, layerName, pxPerExtent, options) {
         return bounds(self.scalePoint([x0, y0]), self.scalePoint([x1, y1]));
     };
 
+    // Configure this feature layer for its options at a basic level.
+    self.applyOptions = (options) => {
+        if (options.className) {
+            DomUtil.addClass(self.graphics, options.className);
+        }
+        self.setStyle({});   // apply style based on options alone with no overrides
+    }
+
     return self;
 }
+
+export function applyBasicStyle(element, style) {
+    if (style.interactive) {
+        /*
+         * Leaflet's "interactive" class only applies to
+         * renderers that are immediate descendants of a
+         * pane.
+         */
+        element.setAttribute("pointer-events", "auto");
+        DomUtil.addClass(element, "leaflet-interactive");
+    } else {
+        DomUtil.removeClass(element, "leaflet-interactive");
+        element.removeAttribute("pointer-events");
+    }
+
+    if (style.hidden) {
+        element.setAttribute("visibility", "hidden");
+    }
+    else {
+        element.removeAttribute("visibility");
+    }
+};
+
+export function applyPathStyle(path, style) {
+    if (style.stroke) {
+        path.setAttribute("stroke", style.color);
+        path.setAttribute("stroke-opacity", style.opacity);
+        path.setAttribute("stroke-width", style.weight);
+        path.setAttribute("stroke-linecap", style.lineCap);
+        path.setAttribute("stroke-linejoin", style.lineJoin);
+
+        if (style.dashArray) {
+            path.setAttribute("stroke-dasharray", style.dashArray);
+        } else {
+            path.removeAttribute("stroke-dasharray");
+        }
+
+        if (style.dashOffset) {
+            path.setAttribute("stroke-dashoffset", style.dashOffset);
+        } else {
+            path.removeAttribute("stroke-dashoffset");
+        }
+    } else {
+        path.setAttribute("stroke", "none");
+    }
+
+    if (style.fill) {
+        path.setAttribute("fill", style.fillColor || style.color);
+        path.setAttribute("fill-opacity", style.fillOpacity);
+        path.setAttribute("fill-rule", style.fillRule || "evenodd");
+    } else {
+        path.setAttribute("fill", "none");
+    }
+
+    return path;
+};
+
+export function applyImageStyle(image, style) {
+    if (style.icon) {
+        image.setAttribute("width", style.icon.options.iconSize[0]);
+        image.setAttribute("height", style.icon.options.iconSize[1]);
+        image.setAttribute("href", style.icon.options.iconUrl);
+    }
+};
 
 export function featurePathLayer(feature, layerName, pxPerExtent, options) {
     const featureType = VectorTileFeature.types[feature.type];
@@ -176,8 +182,9 @@ export function featurePathLayer(feature, layerName, pxPerExtent, options) {
     const self = featureLayer(feature, layerName, pxPerExtent, options);
 
     self.setStyle = function setStyle(style) {
-        self.applyBasicStyle(self.graphics, style);
-        self.applyPathStyle(self.graphics, style);
+        style = extend({}, options, style);
+        applyBasicStyle(self.graphics, style);
+        applyPathStyle(self.graphics, style);
     };
 
     const geometry = feature.loadGeometry();
@@ -204,15 +211,18 @@ export function featurePathLayer(feature, layerName, pxPerExtent, options) {
     );
     self.graphics.setAttribute("d", pathPoints);
 
+    self.applyOptions(options);
+
     return self;
 }
 
 export function featureIconLayer(feature, layerName, pxPerExtent, options) {
     const self = featureLayer(feature, layerName, pxPerExtent, options);
 
-    self.setStyle = function setStyle(options) {
-        self.applyBasicStyle(self.graphics, options);
-        self.applyImageStyle(self.graphics, options);
+    self.setStyle = function setStyle(style) {
+        style = extend({}, options, style);
+        applyBasicStyle(self.graphics, style);
+        applyImageStyle(self.graphics, style);
     };
 
     self.graphics = SVG.create("image");
@@ -221,6 +231,8 @@ export function featureIconLayer(feature, layerName, pxPerExtent, options) {
     const anchor = options.icon.options.iconAnchor || [0,0];
     self.graphics.setAttribute("x", pos.x - anchor[0]);
     self.graphics.setAttribute("y", pos.y - anchor[1]);
+
+    self.applyOptions(options);
 
     return self;
 }

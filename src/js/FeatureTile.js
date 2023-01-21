@@ -34,7 +34,7 @@
     divideBy, domElement, eachFeatureLayer, extent, feature,
     featureToLayer, forEach, freeze, getFeatureStyle, getOrderedLayers,
     getTileSize, global, keys, layers, length, options, push, scaleBy,
-    setAttribute, setStyle, x, y
+    setAttribute, x, y
 */
 
 import {SVG} from "leaflet";
@@ -63,7 +63,6 @@ export default Object.freeze(function featureTile(coords, layer) {
             featureStyle
         );
 
-        ftrLyr.setStyle(featureStyle);
         m_rootGroup.appendChild(ftrLyr.graphics);
 
         m_layers.push(ftrLyr);
