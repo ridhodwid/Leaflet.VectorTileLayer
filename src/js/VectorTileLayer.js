@@ -71,7 +71,7 @@ function tileId(coords) {
 }
 
 const defaultOptions = {
-    featureToLayer: undefined,
+    featureToLayer: defaultFeatureLayer,
     filter: undefined,
     layerOrder: undefined,
     layers: undefined,
@@ -289,8 +289,8 @@ export default Object.freeze(function vectorTileLayer(url, options) {
         );
     };
 
-    self.featureToLayer = function featureToLayer() {
-        return options.featureToLayer || defaultFeatureLayer;
+    self.featureToLayer = function featureToLayer(feature, layerName, pxPerExtent, featureOptions) {
+        return options.featureToLayer(feature, layerName, pxPerExtent, featureOptions);
     };
 
     self.addFeatureLayer = function addFeatureLayer(featureLayer) {

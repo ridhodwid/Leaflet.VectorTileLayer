@@ -55,8 +55,7 @@ export default Object.freeze(function featureTile(coords, layer) {
             return;
         }
 
-        const featureToLayer = layer.featureToLayer()
-        const ftrLyr = featureToLayer(
+        const ftrLyr = layer.featureToLayer(
             feature,
             layerName,
             pxPerExtent,
