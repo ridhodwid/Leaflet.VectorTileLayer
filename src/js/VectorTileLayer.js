@@ -31,17 +31,16 @@
 
 /*property
     _globalTileRange, _tileZoom, abs, addEventParent, addFeatureLayer, addTo,
-     addVectorTile, arrayBuffer, bbox, call, coords, createTile, crs,
-     divideBy, domElement, eachFeatureLayer, extend, feature, featureToLayer,
-     filter, forEach, freeze, getBounds, getFeatureId, getFeatureStyle,
-     getOrderedLayers, getPrototypeOf, getTileSize, getTileUrl, getZoom,
-     getZoomScale, global, infinite, isArray, join, keys, layerName,
-     layerOrder, layers, length, max, maxDetailZoom, maxZoom, min,
-     minDetailZoom, minZoom, off, ok, on, onAdd, onRemove, options,
-     properties, removeEventParent, removeFeatureLayer, removeFrom,
-     resetFeatureStyle, round, s, setFeatureStyle, setStyle, split, status,
-     statusText, style, subdomains, template, then, unproject,
-     vectorTileLayerStyles, x, y, z, zoomOffset, zoomReverse
+    addVectorTile, arrayBuffer, bbox, call, coords, createTile, crs, divideBy,
+    domElement, eachFeatureLayer, extend, feature, featureToLayer, filter,
+    forEach, freeze, getBounds, getFeatureId, getFeatureStyle, getOrderedLayers,
+    getPrototypeOf, getTileSize, getTileUrl, getZoom, getZoomScale, global,
+    infinite, isArray, join, keys, layerName, layerOrder, layers, length, max,
+    maxDetailZoom, maxZoom, min, minDetailZoom, minZoom, off, ok, on, onAdd,
+    onRemove, options, properties, removeEventParent, removeFeatureLayer,
+    removeFrom, resetFeatureStyle, round, s, setFeatureStyle, setStyle, split,
+    status, statusText, style, subdomains, template, then, unproject,
+    vectorTileLayerStyles, x, y, z, zoomOffset, zoomReverse
 */
 
 import featureTile from "./FeatureTile.js";
@@ -289,9 +288,7 @@ export default Object.freeze(function vectorTileLayer(url, options) {
         );
     };
 
-    self.featureToLayer = function featureToLayer(feature, layerName, pxPerExtent, featureOptions) {
-        return options.featureToLayer(feature, layerName, pxPerExtent, featureOptions);
-    };
+    self.featureToLayer = options.featureToLayer;
 
     self.addFeatureLayer = function addFeatureLayer(featureLayer) {
         featureLayer.addTo(m_map);

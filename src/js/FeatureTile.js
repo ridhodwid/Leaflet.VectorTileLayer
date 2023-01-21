@@ -30,11 +30,10 @@
  */
 
 /*property
-    add, addFeatureLayer, addVectorTile, appendChild, coords, create,
-    divideBy, domElement, eachFeatureLayer, extent, feature,
-    featureToLayer, forEach, freeze, getFeatureStyle, getOrderedLayers,
-    getTileSize, global, keys, layers, length, options, push, scaleBy,
-    setAttribute, x, y
+    add, addFeatureLayer, addVectorTile, appendChild, coords, create, divideBy,
+    domElement, eachFeatureLayer, extent, feature, featureToLayer, forEach,
+    freeze, getFeatureStyle, getOrderedLayers, getTileSize, global, graphics,
+    keys, layers, length, push, scaleBy, setAttribute, x, y
 */
 
 import {SVG} from "leaflet";

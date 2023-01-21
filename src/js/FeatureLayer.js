@@ -30,15 +30,13 @@
  */
 
 /*property
-    LineString, Point, Polygon, Unknown, _map, addClass, addInteractiveTarget,
-    addTo, appendChild, applyBasicStyle, applyImageStyle, applyPathStyle, bbox,
-    className, color, create, dashArray, dashOffset, feature, featureLayerBase,
-    fill, fillColor, fillOpacity, fillRule, graphics, hidden, icon, iconAnchor,
-    iconSize, iconUrl, interactionPath, interactionWeight, interactive,
-    layerName, lineCap, lineJoin, loadGeometry, map, opacity, options,
-    pointsToPath, properties, prototype, radius, removeAttribute, removeClass,
-    removeFrom, removeInteractiveTarget, scaleBy, scalePoint, setAttribute,
-    setStyle, stroke, type, visiblePath, weight, x, y
+    _map, addClass, addInteractiveTarget, addTo, applyOptions, bbox, className,
+    color, create, dashArray, dashOffset, feature, fill, fillColor, fillOpacity,
+    fillRule, graphics, hidden, icon, iconAnchor, iconSize, iconUrl,
+    interactive, layerName, lineCap, lineJoin, loadGeometry, map, opacity,
+    options, pointsToPath, properties, prototype, radius, removeAttribute,
+    removeClass, removeFrom, removeInteractiveTarget, scaleBy, scalePoint,
+    setAttribute, setStyle, stroke, type, types, weight, x, y
 */
 
 import {
@@ -55,7 +53,7 @@ import {
 
 import {VectorTileFeature} from "@mapbox/vector-tile";
 
-export function featureLayerBase(feature, layerName, pxPerExtent, options) {
+function featureLayerBase(feature, layerName, pxPerExtent, options) {
     const self = new Layer(options);
 
     self.feature = feature;
@@ -89,17 +87,19 @@ export function featureLayerBase(feature, layerName, pxPerExtent, options) {
     };
 
     // Configure this feature layer for its options at a basic level.
-    self.applyOptions = (options) => {
+    self.applyOptions = function applyOptions(options) {
         if (options.className) {
             DomUtil.addClass(self.graphics, options.className);
         }
-        self.setStyle({});   // apply style based on options alone with no overrides
-    }
+        // Apply style based on options alone with no overrides.
+        self.setStyle({});
+    };
 
     return self;
 }
+export {featureLayerBase};
 
-export function applyBasicStyle(element, style) {
+function applyBasicStyle(element, style) {
     if (style.interactive) {
         /*
          * Leaflet's "interactive" class only applies to
@@ -115,13 +115,13 @@ export function applyBasicStyle(element, style) {
 
     if (style.hidden) {
         element.setAttribute("visibility", "hidden");
-    }
-    else {
+    } else {
         element.removeAttribute("visibility");
     }
-};
+}
+export {applyBasicStyle};
 
-export function applyPathStyle(path, style) {
+function applyPathStyle(path, style) {
     if (style.stroke) {
         path.setAttribute("stroke", style.color);
         path.setAttribute("stroke-opacity", style.opacity);
@@ -153,17 +153,19 @@ export function applyPathStyle(path, style) {
     }
 
     return path;
-};
+}
+export {applyPathStyle};
 
-export function applyImageStyle(image, style) {
+function applyImageStyle(image, style) {
     if (style.icon) {
         image.setAttribute("width", style.icon.options.iconSize[0]);
         image.setAttribute("height", style.icon.options.iconSize[1]);
         image.setAttribute("href", style.icon.options.iconUrl);
     }
-};
+}
+export {applyImageStyle};
 
-export function featureCircleLayer(feature, layerName, pxPerExtent, options) {
+function featureCircleLayer(feature, layerName, pxPerExtent, options) {
     options = extend({}, CircleMarker.prototype.options, options);
     const self = featureLayerBase(feature, layerName, pxPerExtent, options);
 
@@ -176,15 +178,16 @@ export function featureCircleLayer(feature, layerName, pxPerExtent, options) {
         style = extend({}, options, style);
         applyBasicStyle(self.graphics, style);
         applyPathStyle(self.graphics, style);
-        self.graphics.setAttribute('r', style.radius);
+        self.graphics.setAttribute("r", style.radius);
     };
 
     self.applyOptions(options);
 
     return self;
 }
+export {featureCircleLayer};
 
-export function featurePathLayer(feature, layerName, pxPerExtent, options) {
+function featurePathLayer(feature, layerName, pxPerExtent, options) {
     const featureType = VectorTileFeature.types[feature.type];
     options = extend(
         {},
@@ -215,8 +218,9 @@ export function featurePathLayer(feature, layerName, pxPerExtent, options) {
 
     return self;
 }
+export {featurePathLayer};
 
-export function featureIconLayer(feature, layerName, pxPerExtent, options) {
+function featureIconLayer(feature, layerName, pxPerExtent, options) {
     const self = featureLayerBase(feature, layerName, pxPerExtent, options);
 
     self.setStyle = function setStyle(style) {
@@ -228,7 +232,7 @@ export function featureIconLayer(feature, layerName, pxPerExtent, options) {
     self.graphics = SVG.create("image");
 
     const pos = self.scalePoint(feature.loadGeometry()[0][0]);
-    const anchor = options.icon.options.iconAnchor || [0,0];
+    const anchor = options.icon.options.iconAnchor || [0, 0];
     self.graphics.setAttribute("x", pos.x - anchor[0]);
     self.graphics.setAttribute("y", pos.y - anchor[1]);
 
@@ -236,9 +240,10 @@ export function featureIconLayer(feature, layerName, pxPerExtent, options) {
 
     return self;
 }
+export {featureIconLayer};
 
-export function defaultFeatureLayer(feature, layerName, pxPerExtent, options) {
-    switch(VectorTileFeature.types[feature.type]) {
+function defaultFeatureLayer(feature, layerName, pxPerExtent, options) {
+    switch (VectorTileFeature.types[feature.type]) {
     case "Point":
         if (options.icon) {
             return featureIconLayer(feature, layerName, pxPerExtent, options);
@@ -253,3 +258,4 @@ export function defaultFeatureLayer(feature, layerName, pxPerExtent, options) {
         throw new Error("Unknown feature type");
     }
 }
+export {defaultFeatureLayer};
