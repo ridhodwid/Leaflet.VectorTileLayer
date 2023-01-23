@@ -31,12 +31,11 @@
 
 /*property
     add, addFeatureLayer, addVectorTile, appendChild, coords, create, divideBy,
-    domElement, eachFeatureLayer, extent, feature, forEach, freeze,
-    getFeatureStyle, getOrderedLayers, getTileSize, global, keys, layers,
-    length, push, scaleBy, setAttribute, x, y
+    domElement, eachFeatureLayer, extent, feature, featureToLayer, forEach,
+    freeze, getFeatureStyle, getOrderedLayers, getTileSize, global, graphics,
+    keys, layers, length, push, scaleBy, setAttribute, x, y
 */
 
-import featureLayer from "./FeatureLayer.js";
 import {SVG} from "leaflet";
 
 export default Object.freeze(function featureTile(coords, layer) {
@@ -55,13 +54,15 @@ export default Object.freeze(function featureTile(coords, layer) {
             return;
         }
 
-        const ftrLyr = featureLayer(
+        const ftrLyr = layer.featureToLayer(
             feature,
             layerName,
-            m_rootGroup,
             pxPerExtent,
             featureStyle
         );
+
+        m_rootGroup.appendChild(ftrLyr.graphics);
+
         m_layers.push(ftrLyr);
         layer.addFeatureLayer(ftrLyr);
     }

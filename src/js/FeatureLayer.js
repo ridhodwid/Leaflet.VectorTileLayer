@@ -30,11 +30,12 @@
  */
 
 /*property
-    _map, addClass, addInteractiveTarget, addTo, appendChild, bbox, className,
+    _map, addClass, addInteractiveTarget, addTo, applyOptions, bbox, className,
     color, create, dashArray, dashOffset, feature, fill, fillColor, fillOpacity,
-    fillRule, freeze, interactive, layerName, lineCap, lineJoin, loadGeometry,
-    map, opacity, options, pointsToPath, properties, prototype, radius,
-    removeAttribute, removeClass, removeFrom, removeInteractiveTarget, scaleBy,
+    fillRule, graphics, hidden, icon, iconAnchor, iconSize, iconUrl,
+    interactive, layerName, lineCap, lineJoin, loadGeometry, map, opacity,
+    options, pointsToPath, properties, prototype, radius, removeAttribute,
+    removeClass, removeFrom, removeInteractiveTarget, scaleBy, scalePoint,
     setAttribute, setStyle, stroke, type, types, weight, x, y
 */
 
@@ -49,26 +50,11 @@ import {
     extend,
     point
 } from "leaflet";
+
 import {VectorTileFeature} from "@mapbox/vector-tile";
 
-function featureLayer(feature, layerName, rootGroup, pxPerExtent, options) {
+function featureLayerBase(feature, layerName, pxPerExtent, options) {
     const self = new Layer(options);
-    const m_path = SVG.create("path");
-    const m_type = VectorTileFeature.types[feature.type];
-
-    options = extend(
-        {},
-        (
-            "Polygon" === m_type
-            ? Polygon.prototype.options
-            : (
-                "LineString" === m_type
-                ? Path.prototype.options
-                : CircleMarker.prototype.options
-            )
-        ),
-        options
-    );
 
     self.feature = feature;
     self.layerName = layerName;
@@ -83,106 +69,193 @@ function featureLayer(feature, layerName, rootGroup, pxPerExtent, options) {
     self.addTo = function addTo(map) {
         // Required by addInteractiveTarget.
         self._map = map;
-        self.addInteractiveTarget(m_path);
+        self.addInteractiveTarget(self.graphics);
     };
 
     self.removeFrom = function removeFrom() {
-        self.removeInteractiveTarget(m_path);
+        self.removeInteractiveTarget(self.graphics);
         delete self._map;
     };
 
-    self.setStyle = function setStyle(style) {
-        const path = m_path;
-
-        style = extend({}, options, style);
-
-        if (style.stroke) {
-            path.setAttribute("stroke", style.color);
-            path.setAttribute("stroke-opacity", style.opacity);
-            path.setAttribute("stroke-width", style.weight);
-            path.setAttribute("stroke-linecap", style.lineCap);
-            path.setAttribute("stroke-linejoin", style.lineJoin);
-
-            if (style.dashArray) {
-                path.setAttribute("stroke-dasharray", style.dashArray);
-            } else {
-                path.removeAttribute("stroke-dasharray");
-            }
-
-            if (style.dashOffset) {
-                path.setAttribute("stroke-dashoffset", style.dashOffset);
-            } else {
-                path.removeAttribute("stroke-dashoffset");
-            }
-        } else {
-            path.setAttribute("stroke", "none");
-        }
-
-        if (style.fill) {
-            path.setAttribute("fill", style.fillColor || style.color);
-            path.setAttribute("fill-opacity", style.fillOpacity);
-            path.setAttribute("fill-rule", style.fillRule || "evenodd");
-        } else {
-            path.setAttribute("fill", "none");
-        }
-
-        if (style.interactive) {
-            /*
-             * Leaflet's "interactive" class only applies to
-             * renderers that are immediate descendants of a
-             * pane.
-             */
-            path.setAttribute("pointer-events", "auto");
-            DomUtil.addClass(path, "leaflet-interactive");
-        } else {
-            DomUtil.removeClass(path, "leaflet-interactive");
-            path.removeAttribute("pointer-events");
-        }
-
-        return path;
+    self.scalePoint = function scalePoint(p) {
+        return point(p).scaleBy(pxPerExtent);
     };
-
-    const scalePoint = (p) => point(p).scaleBy(pxPerExtent);
 
     self.bbox = function bbox() {
         const [x0, y0, x1, y1] = feature.bbox();
-        return bounds(scalePoint([x0, y0]), scalePoint([x1, y1]));
+        return bounds(self.scalePoint([x0, y0]), self.scalePoint([x1, y1]));
     };
 
-    const geometry = feature.loadGeometry();
-    function createPoint() {
-        const radius = options.radius;
-        const pt = scalePoint(geometry[0][0]);
-        const arc = `a${radius} ${radius} 0 0 0 0 `;
-        m_path.setAttribute(
-            "d",
-            `M${pt.x} ${pt.y - radius}${arc}${2 * radius}${arc}${-2 * radius}`
-        );
-    }
+    // Configure this feature layer for its options at a basic level.
+    self.applyOptions = function applyOptions(options) {
+        if (options.className) {
+            DomUtil.addClass(self.graphics, options.className);
+        }
+        // Apply style based on options alone with no overrides.
+        self.setStyle({});
+    };
 
-    switch (m_type) {
-    case "Point":
-        createPoint();
-        break;
-    case "LineString":
-    case "Polygon":
-        m_path.setAttribute(
-            "d",
-            SVG.pointsToPath(
-                geometry.map((ring) => ring.map(scalePoint)),
-                "Polygon" === m_type
-            )
-        );
-        break;
-    }
-
-    if (options.className) {
-        DomUtil.addClass(m_path, options.className);
-    }
-    self.setStyle(options);
-
-    rootGroup.appendChild(m_path);
     return self;
 }
+export {featureLayerBase};
 
-export default Object.freeze(featureLayer);
+function applyBasicStyle(element, style) {
+    if (style.interactive) {
+        /*
+         * Leaflet's "interactive" class only applies to
+         * renderers that are immediate descendants of a
+         * pane.
+         */
+        element.setAttribute("pointer-events", "auto");
+        DomUtil.addClass(element, "leaflet-interactive");
+    } else {
+        DomUtil.removeClass(element, "leaflet-interactive");
+        element.removeAttribute("pointer-events");
+    }
+
+    if (style.hidden) {
+        element.setAttribute("visibility", "hidden");
+    } else {
+        element.removeAttribute("visibility");
+    }
+}
+export {applyBasicStyle};
+
+function applyPathStyle(path, style) {
+    if (style.stroke) {
+        path.setAttribute("stroke", style.color);
+        path.setAttribute("stroke-opacity", style.opacity);
+        path.setAttribute("stroke-width", style.weight);
+        path.setAttribute("stroke-linecap", style.lineCap);
+        path.setAttribute("stroke-linejoin", style.lineJoin);
+
+        if (style.dashArray) {
+            path.setAttribute("stroke-dasharray", style.dashArray);
+        } else {
+            path.removeAttribute("stroke-dasharray");
+        }
+
+        if (style.dashOffset) {
+            path.setAttribute("stroke-dashoffset", style.dashOffset);
+        } else {
+            path.removeAttribute("stroke-dashoffset");
+        }
+    } else {
+        path.setAttribute("stroke", "none");
+    }
+
+    if (style.fill) {
+        path.setAttribute("fill", style.fillColor || style.color);
+        path.setAttribute("fill-opacity", style.fillOpacity);
+        path.setAttribute("fill-rule", style.fillRule || "evenodd");
+    } else {
+        path.setAttribute("fill", "none");
+    }
+
+    return path;
+}
+export {applyPathStyle};
+
+function applyImageStyle(image, style) {
+    if (style.icon) {
+        image.setAttribute("width", style.icon.options.iconSize[0]);
+        image.setAttribute("height", style.icon.options.iconSize[1]);
+        image.setAttribute("href", style.icon.options.iconUrl);
+    }
+}
+export {applyImageStyle};
+
+function featureCircleLayer(feature, layerName, pxPerExtent, options) {
+    options = extend({}, CircleMarker.prototype.options, options);
+    const self = featureLayerBase(feature, layerName, pxPerExtent, options);
+
+    const pt = self.scalePoint(feature.loadGeometry()[0][0]);
+    self.graphics = SVG.create("circle");
+    self.graphics.setAttribute("cx", pt.x);
+    self.graphics.setAttribute("cy", pt.y);
+
+    self.setStyle = function setStyle(style) {
+        style = extend({}, options, style);
+        applyBasicStyle(self.graphics, style);
+        applyPathStyle(self.graphics, style);
+        self.graphics.setAttribute("r", style.radius);
+    };
+
+    self.applyOptions(options);
+
+    return self;
+}
+export {featureCircleLayer};
+
+function featurePathLayer(feature, layerName, pxPerExtent, options) {
+    const featureType = VectorTileFeature.types[feature.type];
+    options = extend(
+        {},
+        (
+            "Polygon" === featureType
+            ? Polygon.prototype.options
+            : Path.prototype.options
+        ),
+        options
+    );
+
+    const self = featureLayerBase(feature, layerName, pxPerExtent, options);
+
+    const geometry = feature.loadGeometry();
+    self.graphics = SVG.create("path");
+    self.graphics.setAttribute("d", SVG.pointsToPath(
+        geometry.map((ring) => ring.map(self.scalePoint)),
+        "Polygon" === featureType
+    ));
+
+    self.setStyle = function setStyle(style) {
+        style = extend({}, options, style);
+        applyBasicStyle(self.graphics, style);
+        applyPathStyle(self.graphics, style);
+    };
+
+    self.applyOptions(options);
+
+    return self;
+}
+export {featurePathLayer};
+
+function featureIconLayer(feature, layerName, pxPerExtent, options) {
+    const self = featureLayerBase(feature, layerName, pxPerExtent, options);
+
+    self.setStyle = function setStyle(style) {
+        style = extend({}, options, style);
+        applyBasicStyle(self.graphics, style);
+        applyImageStyle(self.graphics, style);
+    };
+
+    self.graphics = SVG.create("image");
+
+    const pos = self.scalePoint(feature.loadGeometry()[0][0]);
+    const anchor = options.icon.options.iconAnchor || [0, 0];
+    self.graphics.setAttribute("x", pos.x - anchor[0]);
+    self.graphics.setAttribute("y", pos.y - anchor[1]);
+
+    self.applyOptions(options);
+
+    return self;
+}
+export {featureIconLayer};
+
+function defaultFeatureLayer(feature, layerName, pxPerExtent, options) {
+    switch (VectorTileFeature.types[feature.type]) {
+    case "Point":
+        if (options.icon) {
+            return featureIconLayer(feature, layerName, pxPerExtent, options);
+        }
+        return featureCircleLayer(feature, layerName, pxPerExtent, options);
+
+    case "Polygon":
+    case "LineString":
+        return featurePathLayer(feature, layerName, pxPerExtent, options);
+
+    default:
+        throw new Error("Unknown feature type");
+    }
+}
+export {defaultFeatureLayer};
