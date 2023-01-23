@@ -135,19 +135,64 @@ All omitted options will be substituted by the default options for
 [`L.CircleMarker`][CM], [`L.Polyline`][PL] or [`L.Polygon`][PG], as
 appropriate.
 
+Custom Feature Rendering
+------------------------
+
+The `featureToLayer` option on `VectorTileLayer` provides a function that can
+render custom SVG elements depending on feature properties, options, layer
+names and zoom level.
+
+**TBD: explanation of superclass, utility classes/functions, default constructor, etc.**
+
+Example drawing a thickened transparent overlay for polyline interaction:
+```js
+const interactiveLinesLayer = (feature, layerName, pxPerExtent, options) => {
+    // construct a base FeatureLayer
+    const self = featureLayerBase(feature, layerName, pxPerExtent, options);
+
+    // Compose this FeatureLayer of two sub-layers, one for the visible line controlled by `options`
+    // and a second controlled by the path options contained in `options.interaction`. Both will
+    // share the same path geometry.
+    self.visibleLine = defaultFeatureLayer(feature, layerName, pxPerExtent, options);
+    self.interactionLine = defaultFeatureLayer(feature, layerName, pxPerExtent, options.interaction);
+
+    // Place the two layers in an SVG group.
+    const group = SVG.create("g");
+    group.appendChild(self.visibleLine.graphics);
+    group.appendChild(self.interactionLine.graphics);
+    self.graphics = group;
+
+    // Setting of style is delegated to the sub layers.
+    self.setStyle = (style) => {
+        self.visibleLine.setStyle(style);
+        self.interactionLine.setStyle(extend(style, style.interaction));
+    };
+
+    // Initial setup of this FeatureLayer.
+    self.applyOptions(options);
+
+    return self;
+};
+
+// Example options for the above custom renderer:
+const interactiveLineOptions = {
+    color: 'red',
+    weight: 2,
+    interaction: {
+        opacity: 0.0,
+        weight: 10
+    }
+};
+
+```
+
 
 Feature-level Visibility Control
 --------------------------------
 
-The style option `hidden` permits any feature to be hidden by setting the SVG
+The style option `hidden` permits any feature to be hidden. It operates by setting the SVG
 attribute `visibility` to `hidden`.
 
-Interactive Polyline Styling
-----------------------------
-
-For interactive features only, the special path option `interactionWeight`
-will be used to create a transparent line overlying the underlying visible
-line, with the given weight.
 
 Events
 ------
