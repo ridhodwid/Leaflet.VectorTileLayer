@@ -55,7 +55,7 @@ import {
 
 import {VectorTileFeature} from "@mapbox/vector-tile";
 
-export function featureLayer(feature, layerName, pxPerExtent, options) {
+export function featureLayerBase(feature, layerName, pxPerExtent, options) {
     const self = new Layer(options);
 
     self.feature = feature;
@@ -179,7 +179,7 @@ export function featurePathLayer(feature, layerName, pxPerExtent, options) {
         options
     );
 
-    const self = featureLayer(feature, layerName, pxPerExtent, options);
+    const self = featureLayerBase(feature, layerName, pxPerExtent, options);
 
     self.setStyle = function setStyle(style) {
         style = extend({}, options, style);
@@ -217,7 +217,7 @@ export function featurePathLayer(feature, layerName, pxPerExtent, options) {
 }
 
 export function featureIconLayer(feature, layerName, pxPerExtent, options) {
-    const self = featureLayer(feature, layerName, pxPerExtent, options);
+    const self = featureLayerBase(feature, layerName, pxPerExtent, options);
 
     self.setStyle = function setStyle(style) {
         style = extend({}, options, style);
