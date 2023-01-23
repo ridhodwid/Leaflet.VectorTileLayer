@@ -32,7 +32,7 @@
 /*property
     LineString, Point, Polygon, Unknown, _map, addClass, addInteractiveTarget,
     addTo, appendChild, applyBasicStyle, applyImageStyle, applyPathStyle, bbox,
-    className, color, create, dashArray, dashOffset, feature,
+    className, color, create, dashArray, dashOffset, feature, featureLayerBase,
     fill, fillColor, fillOpacity, fillRule, graphics, hidden, icon, iconAnchor,
     iconSize, iconUrl, interactionPath, interactionWeight, interactive,
     layerName, lineCap, lineJoin, loadGeometry, map, opacity, options,
@@ -163,6 +163,27 @@ export function applyImageStyle(image, style) {
     }
 };
 
+export function featureCircleLayer(feature, layerName, pxPerExtent, options) {
+    options = extend({}, CircleMarker.prototype.options, options);
+    const self = featureLayerBase(feature, layerName, pxPerExtent, options);
+
+    const pt = self.scalePoint(feature.loadGeometry()[0][0]);
+    self.graphics = SVG.create("circle");
+    self.graphics.setAttribute("cx", pt.x);
+    self.graphics.setAttribute("cy", pt.y);
+
+    self.setStyle = function setStyle(style) {
+        style = extend({}, options, style);
+        applyBasicStyle(self.graphics, style);
+        applyPathStyle(self.graphics, style);
+        self.graphics.setAttribute('r', style.radius);
+    };
+
+    self.applyOptions(options);
+
+    return self;
+}
+
 export function featurePathLayer(feature, layerName, pxPerExtent, options) {
     const featureType = VectorTileFeature.types[feature.type];
     options = extend(
@@ -170,46 +191,25 @@ export function featurePathLayer(feature, layerName, pxPerExtent, options) {
         (
             "Polygon" === featureType
             ? Polygon.prototype.options
-            : (
-                "LineString" === featureType
-                ? Path.prototype.options
-                : CircleMarker.prototype.options
-            )
+            : Path.prototype.options
         ),
         options
     );
 
     const self = featureLayerBase(feature, layerName, pxPerExtent, options);
 
+    const geometry = feature.loadGeometry();
+    self.graphics = SVG.create("path");
+    self.graphics.setAttribute("d", SVG.pointsToPath(
+        geometry.map((ring) => ring.map(self.scalePoint)),
+        "Polygon" === featureType
+    ));
+
     self.setStyle = function setStyle(style) {
         style = extend({}, options, style);
         applyBasicStyle(self.graphics, style);
         applyPathStyle(self.graphics, style);
     };
-
-    const geometry = feature.loadGeometry();
-    function createPoint() {
-        const r = options.radius;
-        const pt = self.scalePoint(geometry[0][0]);
-        const arc = `a${r} ${r} 0 0 0 0 `;
-        return `M${pt.x} ${pt.y - r}${arc}${2 * r}${arc}${-2 * r}`;
-    }
-
-    function createPath() {
-        return SVG.pointsToPath(
-            geometry.map((ring) => ring.map(self.scalePoint)),
-            "Polygon" === featureType
-        );
-    }
-
-    self.graphics = SVG.create("path");
-
-    const pathPoints = (
-        "Point" === featureType
-        ? createPoint()
-        : createPath()
-    );
-    self.graphics.setAttribute("d", pathPoints);
 
     self.applyOptions(options);
 
@@ -243,7 +243,7 @@ export function defaultFeatureLayer(feature, layerName, pxPerExtent, options) {
         if (options.icon) {
             return featureIconLayer(feature, layerName, pxPerExtent, options);
         }
-        return featurePathLayer(feature, layerName, pxPerExtent, options);
+        return featureCircleLayer(feature, layerName, pxPerExtent, options);
 
     case "Polygon":
     case "LineString":
