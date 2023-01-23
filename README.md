@@ -165,7 +165,7 @@ const interactiveLinesLayer = (feature, layerName, pxPerExtent, options) => {
     // Setting of style is delegated to the sub layers.
     self.setStyle = (style) => {
         self.visibleLine.setStyle(style);
-        self.interactionLine.setStyle(extend(style, style.interaction));
+        self.interactionLine.setStyle(style.interaction);
     };
 
     // Initial setup of this FeatureLayer.
