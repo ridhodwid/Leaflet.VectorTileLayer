@@ -4,10 +4,6 @@ Leaflet.VectorTileLayer
 This module provides a [Leaflet][L] layer that displays [vector tiles][VT].
 It is very similar to [`Leaflet.VectorGrid`][LVG].
 
-In contrast to `VectorGrid`, this class has been designed as much as
-possible in terms of Leaflet's public API. This makes it more likely to
-continue working with future versions of Leaflet.
-
 The biggest difference to `VectorGrid` is the [styling](#styling).
 `VectorTileLayer` also supports two options `min/maxDetailZoom` which are
 subtly different from `VectorGrid`'s `min/maxNativeZoom`. Both provide the
@@ -17,6 +13,10 @@ above or below the zoom range are scaled, changing the stroke weight. The
 `detail` settings offer the same trade-off while still rendering the tiles
 at the correct zoom levels, meaning stroke weight is visually consistent
 across all zoom levels.
+
+In contrast to `VectorGrid`, this class has been designed as much as
+possible in terms of Leaflet's public API. This makes it more likely to
+continue working with future versions of Leaflet.
 
 
 Use
@@ -39,8 +39,8 @@ const tileLayer = vectorTileLayer(url, options);
 ```
 
 The AMD build comes with all dependencies included. If imported as an ES6
-module, you will need to make the dependencies available to your build
-system, for example:
+module, the dependencies need to be made available to the build system, for
+example:
 
 ```sh
 $ npm install @mapbox/vector-tile pbf
@@ -49,21 +49,19 @@ $ npm install @mapbox/vector-tile pbf
 See this package's development dependencies for version information.
 
 
-Styling
--------
+Layer options
+-------------
 
 The main difference to `VectorGrid` is that `VectorTileLayer` takes a
-different approach to styling. Whereas `VectorGrid` requires you to specify
-styling for a fixed set of vector tile layer names in advance, this class
-allows you to specify a single style for all layers irrespective of their
-names. This is particularly useful when specifying a function which is
-called with the rendered feature, the layer name and the current zoom
-level. This way, clients can react dynamically to layer names or ignore
-them altogether.
+different approach to styling. Whereas `VectorGrid` only supports styling a
+previously known set of vector-tile layer names, this class allows
+specifying a single style for all layers irrespective of their names. When
+specifying a function, it is called with the vector-tile feature, the layer
+name and the current zoom level, enabling clients can handle layer names
+dynamically or ignore them altogether.
 
 Another feature not supported by `VectorGrid` is a `setStyle()` call which
-allows changing the styling of the entire layer. This can be used to
-highlight certain features, for example.
+allows changing the style of the entire layer.
 
 For compatibility, support for the `vectorTileLayerStyles` option and
 `set/resetFeatureStyle()` method is also provided.
@@ -76,15 +74,14 @@ After the `load` event, it returns the bounds occupied by the features on
 all currently loaded tiles.
 
 `VectorTileLayer` supports all options provided by [`GridLayer`][GL].
-
 Additionally, the following options are provided:
 
 ```js
 const url = 'https://{s}.example.com/tiles/{z}/{x}/{y}.pbf';
 const options = {
-        // The following optional function will be passed a vector-tile
-        // feature, pixels-per-tile and style object to create each feature
-        // layer.
+        // A function that will be passed a vector-tile feature, the layer
+        // name, the number of SVG coordinate units per vector-tile unit
+        // and the feature's style object to create each feature layer.
         featureToLayer, // default undefined
 
         // A function that will be used to decide whether to include a
@@ -93,13 +90,13 @@ const options = {
         // include all features.
         filter, // default undefined
 
-        // A function that receives a list of vector tile layer names and
+        // A function that receives a list of vector-tile layer names and
         // the zoom level and returns the names in the order in which they
         // should be rendered, from bottom to top. The default is to render
         // all layers as they appear in the tile.
         layerOrder, // default undefined
 
-        // An array of vector tile layer names from bottom to top. Layers
+        // An array of vector-tile layer names from bottom to top. Layers
         // that are missing from this list will not be rendered. The
         // default is to render all layers as they appear in the tile.
         layers, // default undefined
