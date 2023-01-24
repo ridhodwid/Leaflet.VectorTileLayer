@@ -44,11 +44,31 @@
 */
 
 import featureTile from "./FeatureTile.js";
-import {defaultFeatureLayer} from "./FeatureLayer.js";
+import {
+    applyBasicStyle,
+    applyImageStyle,
+    applyPathStyle,
+    defaultFeatureLayer,
+    featureCircleLayer,
+    featureIconLayer,
+    featureLayerBase,
+    featurePathLayer
+} from "./FeatureLayer.js";
 import fetch from "./fetch.js";
 import {GridLayer, Util, latLngBounds} from "leaflet";
 import Pbf from "pbf";
 import {VectorTile} from "@mapbox/vector-tile";
+
+export {
+    applyBasicStyle,
+    applyImageStyle,
+    applyPathStyle,
+    defaultFeatureLayer,
+    featureCircleLayer,
+    featureIconLayer,
+    featureLayerBase,
+    featurePathLayer
+};
 
 function err(...args) {
     return new Error(args.join(": "));
