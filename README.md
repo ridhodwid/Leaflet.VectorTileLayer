@@ -4,7 +4,7 @@ Leaflet.VectorTileLayer
 This module provides a [Leaflet][L] layer that displays [vector tiles][VT].
 It is very similar to [`Leaflet.VectorGrid`][LVG].
 
-The biggest difference to `VectorGrid` is the [styling](#styling).
+The biggest difference to `VectorGrid` is the [styling](#style-options).
 `VectorTileLayer` also supports two options `min/maxDetailZoom` which are
 subtly different from `VectorGrid`'s `min/maxNativeZoom`. Both provide the
 possibility to specify a range of zoom levels that offer an optimal
