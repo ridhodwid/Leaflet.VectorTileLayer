@@ -74,8 +74,8 @@ function err(...args) {
     return new Error(args.join(": "));
 }
 
-function load(url) {
-    return fetch(url).then(function (response) {
+function load(url, options) {
+    return fetch(url, options).then(function (response) {
         if (response.ok) {
             return response.arrayBuffer();
         }
@@ -182,7 +182,7 @@ export default Object.freeze(function vectorTileLayer(url, options) {
         const tile = featureTile(coords, self);
 
         m_featureTiles[id] = tile;
-        load(self.getTileUrl(coords)).then(function (buffer) {
+        load(self.getTileUrl(coords), options.fetchOptions).then(function (buffer) {
             tile.addVectorTile(new VectorTile(new Pbf(buffer)));
             done(null, tile);
         }, function (exc) {

@@ -129,6 +129,9 @@ const options = {
         // This works like the same option for `Leaflet.VectorGrid`.
         // Ignored if style is specified.
         vectorTileLayerStyles, // default undefined
+
+        // Options passed to the `fetch` function when fetching a tile
+        fetchOptions, // default undefined
 };
 
 const layer = vectorTileLayer(url, options);
