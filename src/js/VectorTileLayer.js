@@ -32,15 +32,16 @@
 /*property
     _globalTileRange, _tileZoom, abs, addEventParent, addFeatureLayer, addTo,
     addVectorTile, arrayBuffer, bbox, call, coords, createTile, crs, divideBy,
-    domElement, eachFeatureLayer, extend, feature, featureToLayer, filter,
-    forEach, freeze, getBounds, getFeatureId, getFeatureStyle, getOrderedLayers,
-    getPrototypeOf, getTileSize, getTileUrl, getZoom, getZoomScale, global,
-    infinite, isArray, join, keys, layerName, layerOrder, layers, length, max,
-    maxDetailZoom, maxZoom, min, minDetailZoom, minZoom, off, ok, on, onAdd,
-    onRemove, options, properties, removeEventParent, removeFeatureLayer,
-    removeFrom, resetFeatureStyle, round, s, setFeatureStyle, setStyle, split,
-    status, statusText, style, subdomains, template, then, unproject,
-    vectorTileLayerStyles, x, y, z, zoomOffset, zoomReverse
+    domElement, eachFeatureLayer, extend, feature, featureToLayer, fetchOptions,
+    filter, forEach, freeze, getBounds, getFeatureId, getFeatureStyle,
+    getOrderedLayers, getPrototypeOf, getTileSize, getTileUrl, getZoom,
+    getZoomScale, global, infinite, isArray, join, keys, layerName, layerOrder,
+    layers, length, max, maxDetailZoom, maxZoom, min, minDetailZoom, minZoom,
+    off, ok, on, onAdd, onRemove, options, properties, removeEventParent,
+    removeFeatureLayer, removeFrom, resetFeatureStyle, round, s,
+    setFeatureStyle, setStyle, split, status, statusText, style, subdomains,
+    template, then, unproject, vectorTileLayerStyles, x, y, z, zoomOffset,
+    zoomReverse
 */
 
 import featureTile from "./FeatureTile.js";
@@ -182,12 +183,15 @@ export default Object.freeze(function vectorTileLayer(url, options) {
         const tile = featureTile(coords, self);
 
         m_featureTiles[id] = tile;
-        load(self.getTileUrl(coords), options.fetchOptions).then(function (buffer) {
-            tile.addVectorTile(new VectorTile(new Pbf(buffer)));
-            done(null, tile);
-        }, function (exc) {
-            done(exc, tile);
-        });
+        load(self.getTileUrl(coords), options.fetchOptions).then(
+            function (buffer) {
+                tile.addVectorTile(new VectorTile(new Pbf(buffer)));
+                done(null, tile);
+            },
+            function (exc) {
+                done(exc, tile);
+            }
+        );
 
         return tile.domElement();
     };
