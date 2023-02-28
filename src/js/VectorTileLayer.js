@@ -55,7 +55,6 @@ import {
     featureLayerBase,
     featurePathLayer
 } from "./FeatureLayer.js";
-import fetch from "./fetch.js";
 import {GridLayer, Util, latLngBounds} from "leaflet";
 import Pbf from "pbf";
 import {VectorTile} from "@mapbox/vector-tile";
