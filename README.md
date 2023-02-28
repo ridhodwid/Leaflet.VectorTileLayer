@@ -101,6 +101,9 @@ const options = {
         // and the feature's style object to create each feature layer.
         featureToLayer, // default undefined
 
+        // Options passed to the `fetch` function when fetching a tile.
+        fetchOptions, // default undefined
+
         // A function that will be used to decide whether to include a
         // feature or not. If specified, it will be passed the vector-tile
         // feature, the layer name and the zoom level. The default is to
