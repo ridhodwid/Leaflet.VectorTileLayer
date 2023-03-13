@@ -126,7 +126,9 @@ const options = {
         minDetailZoom, // default undefined
         maxDetailZoom, // default undefined
 
-        // Styling options.
+        // Either a single style object for all features on all layers or a
+        // function that receives the vector-tile feature, the layer name
+        // and the zoom level and returns the appropriate style options.
         style, // default undefined
 
         // This works like the same option for `Leaflet.VectorGrid`.
