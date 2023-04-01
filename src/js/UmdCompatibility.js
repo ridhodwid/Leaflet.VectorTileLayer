@@ -51,7 +51,7 @@ Object.assign(
     umdCompatibility,
     {
         // This reflects the state in 0.11.1 and 0.12.0.
-        "default": vectorTileLayer,
+        default: vectorTileLayer,
         applyBasicStyle,
         applyImageStyle,
         applyPathStyle,
