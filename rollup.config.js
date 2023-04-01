@@ -47,7 +47,6 @@ let outputs = [
         input: "src/js/VectorTileLayer.js",
         output: {
             file: "dist/VectorTileLayer.js",
-            name: "VectorTileLayer",
             sourcemap: true
         },
         plugins: [
@@ -91,12 +90,14 @@ const formats = [
         extend(
             output,
             {
+                input: "src/js/UmdCompatibility.js",
                 output: extend(
                     output.output,
                     {
                         file: withTag(output.output.file, "umd"),
                         format: "umd",
-                        globals: {"leaflet": "L"}
+                        globals: {"leaflet": "L"},
+                        name: "VectorTileLayer"
                     }
                 )
             }
