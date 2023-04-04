@@ -34,14 +34,13 @@
     addVectorTile, arrayBuffer, bbox, call, coords, createTile, crs, divideBy,
     domElement, eachFeatureLayer, extend, feature, featureToLayer, fetchOptions,
     filter, forEach, freeze, getBounds, getFeatureId, getFeatureStyle,
-    getOrderedLayers, getPrototypeOf, getTileSize, getTileUrl, getZoom,
-    getZoomScale, global, infinite, isArray, join, keys, layerName, layerOrder,
-    layers, length, max, maxDetailZoom, maxZoom, min, minDetailZoom, minZoom,
-    off, ok, on, onAdd, onRemove, options, properties, removeEventParent,
-    removeFeatureLayer, removeFrom, resetFeatureStyle, round, s,
-    setFeatureStyle, setStyle, split, status, statusText, style, subdomains,
-    template, then, unproject, vectorTileLayerStyles, x, y, z, zoomOffset,
-    zoomReverse
+    getOrderedLayers, getPrototypeOf, getTileSize, getTileUrl, getZoomScale,
+    global, infinite, isArray, join, keys, layerName, layerOrder, layers,
+    length, max, maxDetailZoom, maxZoom, min, minDetailZoom, minZoom, ok, on,
+    onAdd, onRemove, options, properties, removeEventParent, removeFeatureLayer,
+    removeFrom, resetFeatureStyle, round, s, setFeatureStyle, setStyle, split,
+    status, statusText, style, subdomains, template, then, unproject,
+    vectorTileLayerStyles, x, y, z, zoomOffset, zoomReverse
 */
 
 import featureTile from "./FeatureTile.js";
@@ -160,20 +159,12 @@ export default Object.freeze(function vectorTileLayer(url, options) {
     });
 
     let m_map;
-    let m_zoom;
-    function updateZoom() {
-        m_zoom = m_map.getZoom();
-    }
-
     self.onAdd = function onAdd(map, ...rest) {
         m_map = map;
-        m_map.on("zoomend", updateZoom);
-        updateZoom();
         return m_super.onAdd.call(self, map, ...rest);
     };
 
     self.onRemove = function onRemove(...args) {
-        m_map.off("zoomend", updateZoom);
         m_map = undefined;
         return m_super.onRemove.call(self, ...args);
     };
@@ -255,7 +246,11 @@ export default Object.freeze(function vectorTileLayer(url, options) {
 
         eachFeatureLayer(function (featureLayer) {
             const {feature, layerName} = featureLayer;
-            const featureStyle = self.getFeatureStyle(feature, layerName);
+            const featureStyle = self.getFeatureStyle(
+                feature,
+                layerName,
+                featureLayer.coords().z
+            );
 
             featureLayer.setStyle(featureStyle);
         });
@@ -288,8 +283,8 @@ export default Object.freeze(function vectorTileLayer(url, options) {
         ).round();
     };
 
-    self.getFeatureStyle = function getFeatureStyle(feature, layerName) {
-        if (options.filter && !options.filter(feature, layerName, m_zoom)) {
+    self.getFeatureStyle = function getFeatureStyle(feature, layerName, zoom) {
+        if (options.filter && !options.filter(feature, layerName, zoom)) {
             return;
         }
 
@@ -297,17 +292,17 @@ export default Object.freeze(function vectorTileLayer(url, options) {
 
         return (
             "function" === typeof style
-            ? style(feature, layerName, m_zoom)
+            ? style(feature, layerName, zoom)
             : style
         );
     };
 
-    self.getOrderedLayers = function getOrderedLayers(layerNames) {
+    self.getOrderedLayers = function getOrderedLayers(layerNames, zoom) {
         layerNames = options.layers || layerNames;
         const layerOrder = options.layerOrder;
         return (
             undefined !== layerOrder
-            ? layerOrder(layerNames, m_zoom)
+            ? layerOrder(layerNames, zoom)
             : layerNames
         );
     };
