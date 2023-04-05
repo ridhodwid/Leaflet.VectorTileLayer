@@ -33,7 +33,7 @@
     add, addFeatureLayer, addVectorTile, appendChild, coords, create, divideBy,
     domElement, eachFeatureLayer, extent, feature, featureToLayer, forEach,
     freeze, getFeatureStyle, getOrderedLayers, getTileSize, global, graphics,
-    keys, layers, length, push, scaleBy, setAttribute, x, y
+    keys, layers, length, push, scaleBy, setAttribute, x, y, z
 */
 
 import {SVG} from "leaflet";
@@ -49,7 +49,11 @@ export default Object.freeze(function featureTile(coords, layer) {
     m_svg.appendChild(m_rootGroup);
 
     function addFeature(feature, layerName, pxPerExtent) {
-        const featureStyle = layer.getFeatureStyle(feature, layerName);
+        const featureStyle = layer.getFeatureStyle(
+            feature,
+            layerName,
+            coords.z
+        );
         if (!featureStyle) {
             return;
         }
@@ -69,7 +73,8 @@ export default Object.freeze(function featureTile(coords, layer) {
 
     self.addVectorTile = function addVectorTile(vectorTile) {
         layer.getOrderedLayers(
-            Object.keys(vectorTile.layers)
+            Object.keys(vectorTile.layers),
+            coords.z
         ).forEach(function (layerName) {
             if (!vectorTile.layers[layerName]) {
                 return;
