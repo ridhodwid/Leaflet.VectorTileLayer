@@ -152,9 +152,7 @@ export default Object.freeze(function vectorTileLayer(url, options) {
         if (!tile) {
             return;
         }
-        tile.eachFeatureLayer(
-            (featureLayer) => self.removeFeatureLayer(featureLayer)
-        );
+        tile.eachFeatureLayer(self.removeFeatureLayer);
         delete m_featureTiles[id];
     });
 
@@ -244,12 +242,12 @@ export default Object.freeze(function vectorTileLayer(url, options) {
     self.setStyle = function setStyle(style) {
         options.style = style;
 
-        eachFeatureLayer(function (featureLayer) {
+        eachFeatureLayer(function (featureLayer, idx, ignore, tile) {
             const {feature, layerName} = featureLayer;
             const featureStyle = self.getFeatureStyle(
                 feature,
                 layerName,
-                featureLayer.coords().z
+                tile.coords().z
             );
 
             featureLayer.setStyle(featureStyle);
