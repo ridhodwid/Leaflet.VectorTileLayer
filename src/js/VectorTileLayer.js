@@ -120,7 +120,7 @@ export default Object.freeze(function vectorTileLayer(url, options) {
         }
 
         if ("function" === typeof layerStyle) {
-            layerStyle = layerStyle(feature.properties, zoom);
+            layerStyle = layerStyle(feature.properties, zoom, feature.type);
         }
 
         if (Array.isArray(layerStyle)) {
