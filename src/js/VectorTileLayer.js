@@ -39,7 +39,7 @@
     length, max, maxDetailZoom, maxZoom, min, minDetailZoom, minZoom, ok, on,
     onAdd, onRemove, options, properties, removeEventParent, removeFeatureLayer,
     removeFrom, resetFeatureStyle, round, s, setFeatureStyle, setStyle, split,
-    status, statusText, style, subdomains, template, then, unproject,
+    status, statusText, style, subdomains, template, then, type, unproject,
     vectorTileLayerStyles, x, y, z, zoomOffset, zoomReverse
 */
 
@@ -120,7 +120,7 @@ export default Object.freeze(function vectorTileLayer(url, options) {
         }
 
         if ("function" === typeof layerStyle) {
-            layerStyle = layerStyle(feature.properties, zoom);
+            layerStyle = layerStyle(feature.properties, zoom, feature.type);
         }
 
         if (Array.isArray(layerStyle)) {
