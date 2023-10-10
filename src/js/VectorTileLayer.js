@@ -29,6 +29,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+/*jslint browser*/
+
 /*property
     _globalTileRange, _tileZoom, abs, addEventParent, addFeatureLayer, addTo,
     addVectorTile, arrayBuffer, bbox, call, coords, createTile, crs, divideBy,
@@ -54,7 +56,6 @@ import {
     featureLayerBase,
     featurePathLayer
 } from "./FeatureLayer.js";
-import fetch from "./fetch.js";
 import {GridLayer, Util, latLngBounds} from "leaflet";
 import Pbf from "pbf";
 import {VectorTile} from "@mapbox/vector-tile";
